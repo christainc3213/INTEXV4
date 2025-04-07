@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "INTEX-II.API", "INTEX-II.API.csproj", "{215A9408-8107-8DFF-CFBC-B1753360FDC9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{215A9408-8107-8DFF-CFBC-B1753360FDC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{215A9408-8107-8DFF-CFBC-B1753360FDC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{215A9408-8107-8DFF-CFBC-B1753360FDC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{215A9408-8107-8DFF-CFBC-B1753360FDC9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61166E2B-F562-425E-9BC7-FC78EDC1E1C0}
+	EndGlobalSection
+EndGlobal
