@@ -1,6 +1,4 @@
-import BrowseNavbar from "../components/Header/BrowseNavbar";
-import HeaderLink from "../components/Header/HeaderLink";
-import Logo from "../components/Header/Logo";
+import Logo from "../components/Logo";
 
 const PrivacyPage = () => {
     return (
