@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using INTEX_II.API.Data;
 using INTEX_II.API.Services;
+using INTEX_II.API.DTOs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<InteractionDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("InteractionConnection")));
 
+//IDENTITY
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -41,14 +43,14 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUserClaimsPrincipalFactory>();
 
-//builder.Services.ConfigureApplicationCookie(options =>
-//{
-//    options.Cookie.HttpOnly = true;
-//    options.Cookie.SameSite = SameSiteMode.None; // change after adding https for production
-//    options.Cookie.Name = ".AspNetCore.Identity.Application";
-//    options.LoginPath = "/login";
-//    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-//});
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.None; // change after adding https for production
+    options.Cookie.Name = ".AspNetCore.Identity.Application";
+    options.LoginPath = "/login";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -87,7 +89,12 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
     await signInManager.SignOutAsync();
 
     // Ensure authentication cookie is removed
-    context.Response.Cookies.Delete(".AspNetCore.Identity.Application");
+    context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = false,
+        SameSite = SameSiteMode.None
+    });
 
     return Results.Ok(new { message = "Logout successful" });
 }).RequireAuthorization();

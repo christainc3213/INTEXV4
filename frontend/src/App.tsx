@@ -14,26 +14,26 @@ import Cookies from "js-cookie";
 
 /*---> Component <---*/
 const App: React.FC = () => {
-  // COOKIE IMPLEMENTATION
-  useEffect(() => {
-    let interactionId = Cookies.get("interactionId");
+  // // COOKIE IMPLEMENTATION
+  // useEffect(() => {
+  //   let interactionId = Cookies.get("interactionId");
 
-    if (!interactionId) {
-      interactionId = generateUniqueId();
-      Cookies.set("interactionId", interactionId, {
-        expires: 7, // Days until cookie expires
-        secure: true, // Only if you're using HTTPS
-        sameSite: "Strict", // Or 'Lax', based on your setup
-      });
-    }
-  }, []);
+  //   if (!interactionId) {
+  //     interactionId = generateUniqueId();
+  //     Cookies.set("interactionId", interactionId, {
+  //       expires: 7, // Days until cookie expires
+  //       secure: true, // Only if you're using HTTPS
+  //       sameSite: "Strict", // Or 'Lax', based on your setup
+  //     });
+  //   }
+  // }, []);
 
-  const generateUniqueId = () => {
-    return "xxxxxx-xxxx-4xxx-yxxx-xxxxxx".replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-    });
-  };
+  // const generateUniqueId = () => {
+  //   return "xxxxxx-xxxx-4xxx-yxxx-xxxxxx".replace(/[xy]/g, (c) => {
+  //     const r = (Math.random() * 16) | 0;
+  //     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  //   });
+  // };
 
   return (
     <>
