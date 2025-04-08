@@ -1,8 +1,12 @@
 {
   "dependencies": {
+<<<<<<< HEAD
     "js-cookie": "^3.0.5"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6"
+=======
+    "react-router-dom": "^7.5.0"
+>>>>>>> dd638f98467661230227850a5b8b1346631219cb
   }
 }
