@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+/frontend/public/Movie Posters/
+frontend/public/Movie Posters
 Movie Posters
 
 # Editor directories and files
