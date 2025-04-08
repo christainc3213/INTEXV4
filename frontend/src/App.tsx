@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import MoviePage from "./pages/MoviePage";
 import RegisterPage from "./pages/RegisterPage";
+import BrowsePage from "./pages/BrowsePage";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /*---> Component <---*/
@@ -17,6 +18,7 @@ const App: React.FC = () => {
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/browse" element={<BrowsePage />} />
                 <Route path="/movie/:slug" element={<MoviePage />} />
             </Routes>
         </Router>
