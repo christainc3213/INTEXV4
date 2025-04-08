@@ -3,9 +3,6 @@ export interface MovieType {
     type: string;
     title: string;
     description: string;
-    genre: string;
-    slug: string;
-    docId: string;
 
     // These are optional extras, safe to include
     director?: string;

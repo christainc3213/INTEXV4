@@ -8,16 +8,23 @@ interface Movie {
     description: string;
     rating: string;
     release_year: number;
-    genre: string; // we'll dynamically infer this
-    slug: string; // we'll generate this from title
+    genre: string;
+    slug: string;
 }
 
 const MoviePage = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
-    // Utility: convert title to slug
+
     const slugify = (str: string) =>
         str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+    const getPosterPath = (title: string): string => {
+        return `/Movie Posters/${title
+            .replace(/[^\w\s]/g, "") // remove special characters
+            .replace(/\s+/g, " ") // collapse multiple spaces
+            .trim()}.jpg`;
+    };
 
     const [movie, setMovie] = useState<Movie | null>(null);
     const [loading, setLoading] = useState(true);
@@ -28,7 +35,6 @@ const MoviePage = () => {
                 const res = await fetch("https://localhost:5001/MovieTitles");
                 const data = await res.json();
 
-                // Generate slugs and genres on the fly
                 const moviesWithSlugs: Movie[] = data.map((movie: any) => {
                     const genre = Object.entries(movie).find(
                         ([key, val]) => val === 1 && genreFields.includes(key)
@@ -57,41 +63,63 @@ const MoviePage = () => {
     if (loading) return <h2 style={{ color: "white" }}>Loading...</h2>;
     if (!movie) return <h2 style={{ color: "white" }}>Movie not found</h2>;
 
+    const posterUrl = getPosterPath(movie.title);
+
     return (
-        <Background
-            style={{
-                backgroundImage: `url(/images/films/${movie.genre}/${movie.slug}/large.jpg)`,
-            }}
-        >
+        <Background $posterUrl={`"${posterUrl}"`}>
             <BackButton onClick={() => navigate(-1)}>← Back</BackButton>
 
             <Overlay>
+                <img
+                    src={posterUrl}
+                    alt={movie.title}
+                    style={{
+                        width: "220px",
+                        borderRadius: "8px",
+                        marginBottom: "2rem",
+                        zIndex: 2,
+                    }}
+                    onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                    }}
+                />
+
                 <InfoSection>
                     <Title>{movie.title}</Title>
                     <Description>{movie.description}</Description>
                     <Metadata>
-                        <MetaItem>
-                            <strong>Release Year:</strong> {movie.release_year}
-                        </MetaItem>
-                        <MetaItem>
-                            <strong>Rating:</strong> {movie.rating}
-                        </MetaItem>
-                        <MetaItem>
-                            <strong>Genre:</strong> {movie.genre}
-                        </MetaItem>
+                        <MetaItem><strong>Release Year:</strong> {movie.release_year}</MetaItem>
+                        <MetaItem><strong>Rating:</strong> {movie.rating}</MetaItem>
+                        <MetaItem><strong>Genre:</strong> {movie.genre}</MetaItem>
                     </Metadata>
                 </InfoSection>
+
+                <RecommendationSection>
+                    <h2>More Like This</h2>
+                    <RecommendationScroll>
+                        {[...Array(10)].map((_, i) => (
+                            <RecommendationCard key={i}>
+                                <img
+                                    src="/Movie Posters/fallback.jpg"
+                                    alt="Recommended"
+                                    onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                                    }}
+                                />
+                            </RecommendationCard>
+                        ))}
+                    </RecommendationScroll>
+                </RecommendationSection>
+
                 <RatingTag>{movie.rating}</RatingTag>
             </Overlay>
+
         </Background>
     );
 };
 
 export default MoviePage;
 
-// Utility: convert title to slug
-
-// Fields to infer genres from your dataset
 const genreFields = [
     "action",
     "adventure",
@@ -104,29 +132,45 @@ const genreFields = [
     "horror",
     "reality_tv",
     "comedy_romance",
-    // add others as needed from your JSON structure
 ];
 
-// (Styled Components are the same as before — not repeated here)
-const Background = styled.div`
-  width: 100%;
-  height: 100vh;
-  background-size: cover;
-  background-position: center;
-  position: relative;
+
+const Background = styled.div<{ $posterUrl: string }>`
+    width: 100%;
+    min-height: 100vh; // allow it to grow as needed
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: "";
+        background-image: url(${(props) => props.$posterUrl});
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        filter: brightness(0.3) blur(6px);
+        z-index: 0;
+    }
 `;
 
+
 const Overlay = styled.div`
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 60%);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 3rem;
-  box-sizing: border-box;
-  color: white;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem;
+    box-sizing: border-box;
+    color: white;
+    min-height: 100vh;
 `;
+
 
 const InfoSection = styled.div`
   max-width: 700px;
@@ -183,3 +227,38 @@ const BackButton = styled.button`
     background: rgba(0, 0, 0, 0.8);
   }
 `;
+
+
+const RecommendationSection = styled.div`
+    margin-top: 3rem;
+
+    h2 {
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+`;
+
+
+const RecommendationScroll = styled.div`
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding-bottom: 1rem;
+`;
+
+const RecommendationCard = styled.div`
+  flex: 0 0 auto;
+  width: 160px;
+  height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
