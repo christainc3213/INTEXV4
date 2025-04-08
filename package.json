@@ -3,6 +3,7 @@
     "js-cookie": "^3.0.5"
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.6"
+    "@types/js-cookie": "^3.0.6",
+    "react-router-dom": "^7.5.0"
   }
 }

@@ -1,4 +1,8 @@
 {
+  "compilerOptions": {
+    "jsx": "react-jsx", // ← this is the critical one!
+    "include": ["src"] // make sure 'src/components/Logo.tsx' is inside this
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
