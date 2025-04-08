@@ -7,6 +7,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import MoviePage from "./pages/MoviePage";
 import RegisterPage from "./pages/RegisterPage";
 import BrowsePage from "./pages/BrowsePage";
+import AdminPage from "./pages/AdminPage";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /*---> Component <---*/
@@ -20,6 +21,7 @@ const App: React.FC = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/browse" element={<BrowsePage />} />
                 <Route path="/movie/:slug" element={<MoviePage />} />
+                <Route path="/admin" element={<AdminPage />} />
             </Routes>
         </Router>
     );
