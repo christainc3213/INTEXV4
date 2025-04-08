@@ -14,12 +14,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add databases
+// DATABASES
 builder.Services.AddDbContext<MainDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MainDbConnection")));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+builder.Services.AddDbContext<InteractionDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("InteractionConnection")));
 
 builder.Services.AddAuthorization();
 
@@ -38,21 +41,21 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUserClaimsPrincipalFactory>();
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.None; // change after adding https for production
-    options.Cookie.Name = ".AspNetCore.Identity.Application";
-    options.LoginPath = "/login";
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-});
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.SameSite = SameSiteMode.None; // change after adding https for production
+//    options.Cookie.Name = ".AspNetCore.Identity.Application";
+//    options.LoginPath = "/login";
+//    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+//});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // Replace with your frontend URL
+            policy.WithOrigins("http://localhost:3000") // Replace with your frontend URL
                 .AllowCredentials() // Required to allow cookies
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -84,12 +87,7 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
     await signInManager.SignOutAsync();
 
     // Ensure authentication cookie is removed
-    context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
-    {
-        HttpOnly = true,
-        Secure = false,
-        SameSite = SameSiteMode.None
-    });
+    context.Response.Cookies.Delete(".AspNetCore.Identity.Application");
 
     return Results.Ok(new { message = "Logout successful" });
 }).RequireAuthorization();

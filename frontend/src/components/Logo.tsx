@@ -2,19 +2,19 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Logo = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleClick = () => {
-        navigate("/");
-    };
+  const handleClick = () => {
+    navigate("/browse");
+  };
 
-    return (
-        <StyledImage
-            src="/logo.png" // ← direct path from /public
-            alt="CineNiche logo"
-            onClick={handleClick}
-        />
-    );
+  return (
+    <StyledImage
+      src="/logo.png" // ← direct path from /public
+      alt="CineNiche logo"
+      onClick={handleClick}
+    />
+  );
 };
 
 const StyledImage = styled.img`

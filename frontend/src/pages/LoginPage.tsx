@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./Identity.css";
 
 function LoginPage() {
   // state variables for email and passwords
@@ -61,7 +60,7 @@ function LoginPage() {
         throw new Error(data?.message || "Invalid email or password.");
       }
 
-      navigate("/");
+      navigate("/browse");
     } catch (error: any) {
       setError(error.message || "Error logging in.");
       console.error("Fetch attempt failed:", error);
