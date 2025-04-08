@@ -7,6 +7,7 @@ namespace INTEX_II.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    //[Authorize]
     public class MovieTitlesController : ControllerBase
     {
         private readonly MainDbContext _context;
