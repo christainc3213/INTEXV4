@@ -39,8 +39,8 @@ function LoginPage() {
     }
 
     const loginUrl = rememberme
-      ? "https://localhost:5001/login?useCookies=true"
-      : "https://localhost:5001/login?useSessionCookies=true";
+      ? "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useCookies=true"
+      : "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useSessionCookies=true";
 
     try {
       const response = await fetch(loginUrl, {

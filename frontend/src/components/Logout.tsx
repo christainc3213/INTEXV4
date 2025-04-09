@@ -7,13 +7,16 @@ function Logout(props: { children: React.ReactNode }) {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://localhost:5001/logout", {
-        method: "POST",
-        credentials: "include", // Ensure cookies are sent
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/logout",
+        {
+          method: "POST",
+          credentials: "include", // Ensure cookies are sent
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         navigate("/");

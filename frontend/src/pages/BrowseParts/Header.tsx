@@ -7,161 +7,167 @@ import Logout from "../../components/Logout";
 import AdminButton from "../../components/AdminButton";
 
 export interface HeaderProps {
-    selectedGenre: string;
-    setSelectedGenre: (genre: string) => void;
-    genres: string[];
-    formatGenreName: (genre: string) => string;
-    allMovies: MovieType[];
+  selectedGenre: string;
+  setSelectedGenre: (genre: string) => void;
+  genres: string[];
+  formatGenreName: (genre: string) => string;
+  allMovies: MovieType[];
 }
 
 const Header = ({
-                    selectedGenre,
-                    setSelectedGenre,
-                    genres,
-                    formatGenreName,
-                    allMovies,
-                }: HeaderProps) => {
-    const navigate = useNavigate();
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const [userRole, setUserRole] = useState<string | null>(null);
+  selectedGenre,
+  setSelectedGenre,
+  genres,
+  formatGenreName,
+  allMovies,
+}: HeaderProps) => {
+  const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-    const userMenuRef = useRef<HTMLDivElement>(null);
-    const userMenuWrapperRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuWrapperRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const response = await fetch("https://localhost:5001/user/info", {
-                    method: "GET",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(
+          "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/user/info",
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-                if (response.ok) {
-                    const data = await response.json();
+        if (response.ok) {
+          const data = await response.json();
 
-                    if (data.roles?.includes("Administrator")) {
-                        setUserRole("Administrator");
-                    } else {
-                        setUserRole("User"); // Optional fallback
-                    }
-                } else {
-                    console.error("Failed to fetch user info");
-                }
-            } catch (err) {
-                console.error("Error fetching user info", err);
-            }
-        };
-
-        fetchUserInfo();
-
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                userMenuWrapperRef.current &&
-                !userMenuWrapperRef.current.contains(event.target as Node)
-            ) {
-                setUserMenuOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const genre = e.target.value;
-        navigate(`/browse?genre=${genre}`);
-    };
-
-    const handleSearch = () => {
-        if (searchQuery.trim()) {
-            navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-            setSearchQuery("");
-            setSearchOpen(false);
+          if (data.roles?.includes("Administrator")) {
+            setUserRole("Administrator");
+          } else {
+            setUserRole("User"); // Optional fallback
+          }
+        } else {
+          console.error("Failed to fetch user info");
         }
+      } catch (err) {
+        console.error("Error fetching user info", err);
+      }
     };
 
-    const handleHomeClick = () => {
-        navigate("/browse");
-        setTimeout(() => setSelectedGenre("all"), 0);
+    fetchUserInfo();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuWrapperRef.current &&
+        !userMenuWrapperRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
     };
 
-    const isGenreSelected = () => {
-        return selectedGenre !== "all" && !window.location.search.includes("type=");
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    return (
-        <StyledHeader>
-            <LogoWrapper>
-                <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
-            </LogoWrapper>
-            <NavMenu>
-                <NavItem
-                    $active={
-                        location.pathname === "/browse" &&
-                        !location.search.includes("type=") &&
-                        selectedGenre === "all"
-                    }
-                    onClick={handleHomeClick}
-                >
-                    Home
-                </NavItem>
+  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const genre = e.target.value;
+    navigate(`/browse?genre=${genre}`);
+  };
 
-                <NavItem
-                    $active={location.search.includes("type=Movies")}
-                    onClick={() => navigate("/browse?type=Movies")}
-                >
-                    Movies
-                </NavItem>
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setSearchOpen(false);
+    }
+  };
 
-                <NavItem
-                    $active={location.search.includes("type=TV-Shows")}
-                    onClick={() => navigate("/browse?type=TV-Shows")}
-                >
-                    TV Shows
-                </NavItem>
+  const handleHomeClick = () => {
+    navigate("/browse");
+    setTimeout(() => setSelectedGenre("all"), 0);
+  };
 
-                <GenreSelect
-                    value={selectedGenre}
-                    onChange={handleGenreChange}
-                    $active={isGenreSelected()}
-                >
-                    <option value="all">Genres</option>
-                    {genres.map((genre) => (
-                        <option key={genre} value={genre}>
-                            {formatGenreName(genre)}
-                        </option>
-                    ))}
-                </GenreSelect>
-            </NavMenu>
+  const isGenreSelected = () => {
+    return selectedGenre !== "all" && !window.location.search.includes("type=");
+  };
 
-            <IconWrapper>
-                {searchOpen && (
-                    <SearchInput
-                        type="text"
-                        placeholder="Search titles..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                        autoFocus
-                    />
-                )}
-                <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
-                <StyledIcon as={FiUser} onClick={() => setUserMenuOpen(!userMenuOpen)} />
+  return (
+    <StyledHeader>
+      <LogoWrapper>
+        <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
+      </LogoWrapper>
+      <NavMenu>
+        <NavItem
+          $active={
+            location.pathname === "/browse" &&
+            !location.search.includes("type=") &&
+            selectedGenre === "all"
+          }
+          onClick={handleHomeClick}
+        >
+          Home
+        </NavItem>
 
-                {userMenuOpen && (
-                    <UserDropdown ref={userMenuRef}>
-                        <Logout>Logout</Logout>
-                        {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
-                    </UserDropdown>
-                )}
-            </IconWrapper>
-        </StyledHeader>
-    );
+        <NavItem
+          $active={location.search.includes("type=Movies")}
+          onClick={() => navigate("/browse?type=Movies")}
+        >
+          Movies
+        </NavItem>
+
+        <NavItem
+          $active={location.search.includes("type=TV-Shows")}
+          onClick={() => navigate("/browse?type=TV-Shows")}
+        >
+          TV Shows
+        </NavItem>
+
+        <GenreSelect
+          value={selectedGenre}
+          onChange={handleGenreChange}
+          $active={isGenreSelected()}
+        >
+          <option value="all">Genres</option>
+          {genres.map((genre) => (
+            <option key={genre} value={genre}>
+              {formatGenreName(genre)}
+            </option>
+          ))}
+        </GenreSelect>
+      </NavMenu>
+
+      <IconWrapper>
+        {searchOpen && (
+          <SearchInput
+            type="text"
+            placeholder="Search titles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            autoFocus
+          />
+        )}
+        <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
+        <StyledIcon
+          as={FiUser}
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+        />
+
+        {userMenuOpen && (
+          <UserDropdown ref={userMenuRef}>
+            <Logout>Logout</Logout>
+            {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
+          </UserDropdown>
+        )}
+      </IconWrapper>
+    </StyledHeader>
+  );
 };
 
 export default Header;
