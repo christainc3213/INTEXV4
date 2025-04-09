@@ -2,89 +2,94 @@ import styled from "styled-components";
 import { FiSearch, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { MovieType } from "../../types/MovieType";
-import React, { useState } from "react";
-import { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Logout from "../../components/Logout";
 import AdminButton from "../../components/AdminButton";
 
 export interface HeaderProps {
-  selectedGenre: string;
-  setSelectedGenre: (genre: string) => void;
-  genres: string[];
-  formatGenreName: (genre: string) => string;
-  allMovies: MovieType[];
+    selectedGenre: string;
+    setSelectedGenre: (genre: string) => void;
+    genres: string[];
+    formatGenreName: (genre: string) => string;
+    allMovies: MovieType[];
 }
 
 const Header = ({
-  selectedGenre,
-  setSelectedGenre,
-  genres,
-  formatGenreName,
-  allMovies,
-}: HeaderProps) => {
-  const navigate = useNavigate();
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  const userMenuRef = useRef<HTMLDivElement>(null);
-  const userMenuWrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch("https://localhost:5001/user/info", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allMovies }: HeaderProps) => {
+                    selectedGenre,
+                    setSelectedGenre,
+                    genres,
+                    formatGenreName,
+                    allMovies,
+                }: HeaderProps) => {
     const navigate = useNavigate();
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
-        if (response.ok) {
-          const data = await response.json();
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const userMenuWrapperRef = useRef<HTMLDivElement>(null);
 
-          if (data.roles?.includes("Administrator")) {
-            setUserRole("Administrator");
-          } else {
-            setUserRole("User"); // Optional
-          }
-        } else {
-          console.error("Failed to fetch user info");
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch("https://localhost:5001/user/info", {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.roles?.includes("Administrator")) {
+                        setUserRole("Administrator");
+                    } else {
+                        setUserRole("User"); // Optional fallback
+                    }
+                } else {
+                    console.error("Failed to fetch user info");
+                }
+            } catch (err) {
+                console.error("Error fetching user info", err);
+            }
+        };
+
+        fetchUserInfo();
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                userMenuWrapperRef.current &&
+                !userMenuWrapperRef.current.contains(event.target as Node)
+            ) {
+                setUserMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const genre = e.target.value;
+        navigate(`/browse?genre=${genre}`);
+    };
+
+    const handleSearch = () => {
+        if (searchQuery.trim()) {
+            navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+            setSearchQuery("");
+            setSearchOpen(false);
         }
-      } catch (err) {
-        console.error("Error fetching user info", err);
-      }
     };
-
-    fetchUserInfo();
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        userMenuWrapperRef.current &&
-        !userMenuWrapperRef.current.contains(event.target as Node)
-      ) {
-        setUserMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
     const handleHomeClick = () => {
         navigate("/browse");
         setTimeout(() => setSelectedGenre("all"), 0);
     };
 
-    
     const isGenreSelected = () => {
         return selectedGenre !== "all" && !window.location.search.includes("type=");
     };
@@ -96,7 +101,11 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
             </LogoWrapper>
             <NavMenu>
                 <NavItem
-                    $active={location.pathname === "/browse" && !location.search.includes("type=") && selectedGenre === "all"}
+                    $active={
+                        location.pathname === "/browse" &&
+                        !location.search.includes("type=") &&
+                        selectedGenre === "all"
+                    }
                     onClick={handleHomeClick}
                 >
                     Home
@@ -128,7 +137,6 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
                         </option>
                     ))}
                 </GenreSelect>
-
             </NavMenu>
 
             <IconWrapper>
@@ -143,24 +151,22 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
                     />
                 )}
                 <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
+                <StyledIcon as={FiUser} onClick={() => setUserMenuOpen(!userMenuOpen)} />
 
-                <StyledIcon
-                  as={FiUser}
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                />
                 {userMenuOpen && (
-                  <UserDropdown ref={userMenuRef}>
-                    <Logout>Logout</Logout>
-                    {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
-                  </UserDropdown>
+                    <UserDropdown ref={userMenuRef}>
+                        <Logout>Logout</Logout>
+                        {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
+                    </UserDropdown>
                 )}
             </IconWrapper>
-
         </StyledHeader>
     );
 };
 
 export default Header;
+
+// Styled Components
 
 const StyledHeader = styled.header`
   position: fixed;
@@ -189,38 +195,35 @@ const NavMenu = styled.nav`
 `;
 
 const NavItem = styled.div<{ $active?: boolean }>`
-    color: ${({ $active }) => ($active ? "white" : "gray")};
-    font-size: 1.125rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s;
+  color: ${({ $active }) => ($active ? "white" : "gray")};
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
 `;
-
-
 
 const GenreSelect = styled.select<{ $active?: boolean }>`
-    background: transparent;
-    border: none;
-    color: ${({ $active }) => ($active ? "white" : "gray")};
-    font-size: 1.125rem;
-    font-weight: 600;
-    appearance: none;
-    cursor: pointer;
-    padding: 4px 8px;
+  background: transparent;
+  border: none;
+  color: ${({ $active }) => ($active ? "white" : "gray")};
+  font-size: 1.125rem;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+  padding: 4px 8px;
 
-    option {
-        background: #000;
-        color: white;
-    }
+  option {
+    background: #000;
+    color: white;
+  }
 `;
 
-
 const IconWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 250px; /* Reserve space so center stays centered */
-    justify-content: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 250px;
+  justify-content: flex-end;
 `;
 
 const LogoWrapper = styled.div`
@@ -228,7 +231,6 @@ const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
 `;
-
 
 const StyledIcon = styled.div`
   font-size: 24px;
@@ -253,10 +255,8 @@ const UserDropdown = styled.div`
   position: absolute;
   top: 50px;
   right: 24px;
-  background: rgba(0, 0, 0, 0.75); // 75% opaque black
-  // border: 1px solid #333;
+  background: rgba(0, 0, 0, 0.75);
   border-radius: 3px;
-  // padding: 10px;
   color: white;
   z-index: 999;
   min-width: 120px;
@@ -275,4 +275,4 @@ const UserDropdown = styled.div`
       background: #222;
     }
   }
-  `;
+`;
