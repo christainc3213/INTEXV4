@@ -46,9 +46,10 @@ function Register() {
       return;
     }
 
-    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/.test(password)) {
+    // Enforce new password requirements (12+ characters, at least 1 uppercase, 1 number)
+    if (!/^(?=.*[A-Z])(?=.*\d).{12,}$/.test(password)) {
       setError(
-        "Password must be at least 6 characters long and include at least 1 uppercase letter, 1 number, and 1 symbol."
+        "Password must be at least 12 characters long, include at least 1 uppercase letter and 1 number."
       );
       return;
     }
