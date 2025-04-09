@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Spinner from "../components/Spinner";
+import MovieHeader from "../pages/MoviePageHeader";
 
 interface Movie {
   show_id: string;
@@ -17,6 +18,73 @@ const MoviePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+
+
+  // Separate states for each rec source
+  const [contentRecs, setContentRecs] = useState<string[]>([]);
+  const [collabRecs, setCollabRecs] = useState<string[]>([]);
+  const [actionRecs, setActionRecs] = useState<string[]>([]);
+  const [comedyRecs, setComedyRecs] = useState<string[]>([]);
+  const [dramaRecs, setDramaRecs] = useState<string[]>([]);
+
+  const handleStarClick = async (rating: number) => {
+    if (!movie) return;
+  
+    const userId = 11;
+    if (!userId) {
+      alert("You must be logged in to rate movies.");
+      return;
+    }
+  
+    setUserRating(rating);
+  
+    try {
+      const res = await fetch("https://localhost:5001/api/ratings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          show_id: movie.show_id,
+          rating: rating,
+        }),
+      });
+  
+      if (!res.ok) {
+        console.error("Failed to submit rating");
+      }
+    } catch (err) {
+      console.error("Rating submit error:", err);
+    }
+  };
+  
+  const renderStars = () => {
+    const stars = [];
+  
+    for (let i = 1; i <= 5; i++) {
+      const filled = hoverRating ? i <= hoverRating : i <= (userRating ?? 0);
+  
+      stars.push(
+        <Star
+          key={i}
+          onClick={() => handleStarClick(i)}
+          onMouseEnter={() => setHoverRating(i)}
+          onMouseLeave={() => setHoverRating(null)}
+          $filled={filled}
+        >
+          ★
+        </Star>
+      );
+    }
+  
+    return <StarsContainer>{stars}</StarsContainer>;
+  };    
+
   const slugify = (str: string) =>
     str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
@@ -26,17 +94,7 @@ const MoviePage = () => {
       .replace(/[^\w\s]/g, "")
       .replace(/\s+/g, " ")
       .trim()}.jpg`;
-  };
-
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Separate states for each rec source
-  const [contentRecs, setContentRecs] = useState<string[]>([]);
-  const [collabRecs, setCollabRecs] = useState<string[]>([]);
-  const [actionRecs, setActionRecs] = useState<string[]>([]);
-  const [comedyRecs, setComedyRecs] = useState<string[]>([]);
-  const [dramaRecs, setDramaRecs] = useState<string[]>([]);
+  }; 
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -66,6 +124,17 @@ const MoviePage = () => {
         setMovie(matched);
         const id = matched.show_id;
 
+        const userId = 11;
+        if (userId) {
+          fetch(`https://localhost:5001/api/ratings/${userId}/${id}`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+              if (data?.rating) {
+                setUserRating(data.rating);
+              }
+            })
+            .catch((err) => console.warn("Failed to fetch existing rating:", err));
+        }
         // Fetch each rec source independently
         fetch(`/api/DetailsRecommendation/content/${id}`)
           .then(res => res.ok ? res.json() : [])
@@ -75,7 +144,7 @@ const MoviePage = () => {
         fetch(`/api/DetailsRecommendation/collab/${id}`)
           .then(res => res.ok ? res.json() : [])
           .then(setCollabRecs)
-          .catch(e => console.warn("Collab recs failed", e));
+          .catch(e => console.warn("Collab recs failed", e));                           
 
         const genre = matched.genre?.toLowerCase() ?? "";
 
@@ -141,8 +210,12 @@ const MoviePage = () => {
 
   return (
     <Background $posterUrl={`"${posterUrl}"`}>
-      <BackButton onClick={() => navigate(-1)}>← Back</BackButton>
-
+      <MovieHeader selectedGenre={""} setSelectedGenre={function (genre: string): void {
+        throw new Error("Function not implemented.");
+      } } genres={[]} formatGenreName={function (genre: string): string {
+        throw new Error("Function not implemented.");
+      } } allMovies={[]}      
+      />
       <Overlay>
         <img
           src={posterUrl}
@@ -166,6 +239,9 @@ const MoviePage = () => {
             <MetaItem><strong>Rating:</strong> {movie.rating}</MetaItem>
             <MetaItem><strong>Genre:</strong> {movie.genre}</MetaItem>
           </Metadata>
+          <MetaItem style={{ marginTop: "2rem" }}>
+            <strong>Rate: {renderStars()}</strong>
+          </MetaItem>
         </InfoSection>
 
         {renderRecs("More Like This", contentRecs)}
@@ -315,5 +391,22 @@ const RecommendationCard = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+`;
+
+const StarsContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const Star = styled.span<{ $filled: boolean }>`
+  font-size: 1.5rem;
+  color: ${(props) => (props.$filled ? "#FFD700" : "#666")};
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.2);
   }
 `;

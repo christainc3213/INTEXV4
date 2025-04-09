@@ -20,7 +20,7 @@ namespace INTEX_II.API.Data
             modelBuilder.Entity<MovieUser>().ToTable("movies_users");
             modelBuilder.Entity<MovieRating>()
                 .ToTable("movies_ratings")
-                .HasKey(r => new {r.user_id, r.rating});
+                .HasKey(r => new { r.user_id, r.show_id });
         }
     }
 }
