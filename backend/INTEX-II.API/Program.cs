@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using INTEX_II.API.Data;
 using INTEX_II.API.Services;
-using INTEX_II.API.DTOs;
+//using INTEX_II.API.DTOs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,8 +91,9 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
     // Ensure authentication cookie is removed
     context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
     {
+        Path = "/",
         HttpOnly = true,
-        Secure = false,
+        Secure = true,
         SameSite = SameSiteMode.None
     });
 
@@ -113,6 +114,7 @@ app.MapGet("/pingauth", (HttpContext context, ClaimsPrincipal user) =>
     Console.WriteLine($"Authenticated User Email: {email}");
 
     return Results.Json(new { email = email });
-}).RequireAuthorization();
+});
+    //.RequireAuthorization();
 
 app.Run();

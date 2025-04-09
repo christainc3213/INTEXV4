@@ -6,7 +6,8 @@ import CardFeature from "../components/CardFeature";
 import Spinner from "../components/Spinner";
 import FooterComponent from "../components/FooterComponent";
 import { MovieType } from "../types/MovieType";
-import AuthorizeView from "../components/AuthorizeView";
+import AuthorizeView, { AuthorizedUser } from "../components/AuthorizeView";
+import Logout from "../components/Logout";
 
 const extractFirstGenre = (item: any): string => {
   const genreKeys = [
@@ -111,6 +112,9 @@ const BrowsePage = () => {
   return (
     <>
       <AuthorizeView>
+        <Logout>
+          Logout <AuthorizedUser value="email" />
+        </Logout>
         <HeaderComponent showSigninButton />
         <FeatureHero
           title="Watch Patman Now"
