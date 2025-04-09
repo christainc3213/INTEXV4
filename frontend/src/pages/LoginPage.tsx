@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeaderComponent from "../components/HeaderComponent";
 
 function LoginPage() {
   // state variables for email and passwords
@@ -68,97 +69,184 @@ function LoginPage() {
   };
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="card border-0 shadow rounded-3 ">
-          <div className="card-body p-4 p-sm-5">
-            <h5 className="card-title text-center mb-5 fw-light fs-5">
-              Sign In
-            </h5>
-            <form onSubmit={handleSubmit}>
-              <div className="form-floating mb-3">
-                <input
-                  className="form-control"
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={handleChange}
-                />
-                <label htmlFor="email">Email address</label>
-              </div>
-              <div className="form-floating mb-3">
-                <input
-                  className="form-control"
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                />
-                <label htmlFor="password">Password</label>
-              </div>
+    <HeaderComponent>
+      {/* <LoginBox> */}
+      <LoginHeroContent>
+        <h1>Welcome Back</h1>
+        <h2>Please log in to continue</h2>
 
-              <div className="form-check mb-3">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value=""
-                  id="rememberme"
-                  name="rememberme"
-                  checked={rememberme}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label" htmlFor="rememberme">
-                  Remember password
-                </label>
-              </div>
-              <div className="d-grid mb-2">
-                <button
-                  className="btn btn-primary btn-login text-uppercase fw-bold"
-                  type="submit"
-                >
-                  Sign in
-                </button>
-              </div>
-              <div className="d-grid mb-2">
-                <button
-                  className="btn btn-primary btn-login text-uppercase fw-bold"
-                  onClick={handleRegisterClick}
-                >
-                  Register
-                </button>
-              </div>
-              {/* <hr className="my-4" /> */}
-              {/* <div className="d-grid mb-2">
-                <button
-                  className="btn btn-google btn-login text-uppercase fw-bold"
-                  type="button"
-                >
-                  <i className="fa-brands fa-google me-2"></i> Sign in with
-                  Google
-                </button>
-              </div>
-              <div className="d-grid mb-2">
-                <button
-                  className="btn btn-facebook btn-login text-uppercase fw-bold"
-                  type="button"
-                >
-                  <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
-                  Facebook
-                </button>
-              </div> */}
-            </form>
-            {error && (
-              <p style={{ color: "red" }} className="error">
-                {error}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+        <FormWrapper onSubmit={handleSubmit}>
+          <StyledInput
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={handleChange}
+          />
+          <StyledInput
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={password}
+            onChange={handleChange}
+          />
+          <CheckboxWrapper>
+            <input
+              type="checkbox"
+              id="rememberme"
+              name="rememberme"
+              checked={rememberme}
+              onChange={handleChange}
+            />
+            <label htmlFor="rememberme">Remember me</label>
+          </CheckboxWrapper>
+          {error && <ErrorText>{error}</ErrorText>}
+
+          <OptFormButton type="submit">
+            <span>Sign In</span>
+            <img src="/icons/chevron-right.png" alt="Sign In" />
+          </OptFormButton>
+
+          <RegisterText>
+            Don’t have an account?{" "}
+            <span onClick={handleRegisterClick}>Register here</span>
+          </RegisterText>
+        </FormWrapper>
+      </LoginHeroContent>
+      {/* </LoginBox> */}
+    </HeaderComponent>
   );
 }
 
 export default LoginPage;
+
+import styled from "styled-components";
+
+const LoginHeroContent = styled.div`
+  max-width: 400px;
+  margin: 0 auto;
+  color: black;
+  text-align: center;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: normal;
+    margin-bottom: 2rem;
+  }
+`;
+
+const FormWrapper = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 0 20px;
+`;
+
+const StyledInput = styled.input`
+  width: 120%;
+  max-width: 400px;
+  height: 50px;
+  padding: 0 15px;
+  border-radius: 999px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+`;
+
+const CheckboxWrapper = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: black;
+
+  input {
+    accent-color: #fff;
+  }
+`;
+
+const ErrorText = styled.p`
+  color: #ff4d4d;
+  margin: 0;
+  font-size: 14px;
+`;
+
+const RegisterText = styled.p`
+  margin-top: 20px;
+  font-size: 14px;
+  color: black;
+
+  span {
+    color: rgb(98, 98, 98);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+`;
+
+const OptFormButton = styled.button`
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+  height: 60px;
+  background: #000;
+  color: white;
+  padding: 0 32px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+
+  img {
+    margin-left: 10px;
+    filter: brightness(0) invert(1);
+    width: 24px;
+    transition: filter 0.4s ease;
+    position: relative;
+    z-index: 3;
+  }
+
+  span {
+    font-size: 16px;
+    z-index: 3;
+    color: white;
+    transition: color 0.4s ease;
+  }
+
+  &:hover img {
+    filter: none;
+  }
+
+  @media (max-width: 950px) {
+    span {
+      font-size: 14px;
+    }
+  }
+`;
+
+// const LoginBox = styled.div`
+//   background: rgba(0, 0, 0, 0.25); /* 👈 semi-transparent black */
+//   padding: 40px 30px;
+//   border-radius: 16px;
+//   max-width: 420px;
+//   width: 100%;
+//   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+//   backdrop-filter: blur(5px);
+//   color: white;
+//   margin: 0 auto;
+
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+// `;

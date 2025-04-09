@@ -1,34 +1,40 @@
-import React from "react";
-// import Seperator from '../components/Seperator/Seperator'
-// import AccordionCompound from '../compounds/AccordionCompound'
-import HeaderComponent from "../components/HeaderComponent";
-// import JumboCompound from '../compounds/JumboCompound'
-import FooterComponent from "../components/FooterComponent";
-
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeaderComponent from "../components/HeaderComponent";
+// import FooterComponent from "../components/FooterComponent";
 
 const HomePage = () => {
-  return (
-    <>
-      <HeaderComponent showSigninButton>
-        <HeroContent>
-          <h1>Independent Films. Cult Classics. All in one place.</h1>
-          <h2>
-            Ready to watch? Enter your email to create or restart your
-            membership.
-          </h2>
-          <FormWrapper>
-            <EmailInput placeholder="Email Address" />
-            <OptFormButton>
-              <span>Get Started</span>
-              <img src="/icons/chevron-right.png" alt="Try Now" />
-            </OptFormButton>
-          </FormWrapper>
-        </HeroContent>
-      </HeaderComponent>
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
 
-      {/* <FooterComponent /> */}
-    </>
+  const handleGetStarted = () => {
+    if (email.trim()) {
+      navigate(`/register?email=${encodeURIComponent(email)}`);
+    } else {
+      alert("Please enter a valid email.");
+    }
+  };
+
+  return (
+    <HeaderComponent showSigninButton>
+      <HeroContent>
+        <h1>Independent Films. Cult Classics. All in one place.</h1>
+        <h2>
+          Ready to watch? Enter your email to create or restart your membership.
+        </h2>
+        <FormWrapper>
+          <EmailInput
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <OptFormButton onClick={handleGetStarted}>
+            <span>Get Started</span>
+            <img src="/icons/chevron-right.png" alt="Try Now" />
+          </OptFormButton>
+        </FormWrapper>
+      </HeroContent>
+    </HeaderComponent>
   );
 };
 
