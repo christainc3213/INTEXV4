@@ -7,6 +7,7 @@ namespace INTEX_II.API.Models
     public class MovieTitle
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string show_id { get; set; }
         public string? type { get; set; }
         public string? title { get; set; }
