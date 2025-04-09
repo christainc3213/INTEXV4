@@ -19,6 +19,8 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
     const navigate = useNavigate();
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
@@ -38,17 +40,60 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
         navigate("/browse");
         setTimeout(() => setSelectedGenre("all"), 0);
     };
+
     
-    
+    const isGenreSelected = () => {
+        return selectedGenre !== "all" && !window.location.search.includes("type=");
+    };
+
+
+    const handleLogout = async () => {
+        try {
+            await fetch("https://localhost:5001/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+            window.location.href = "/"; // or navigate("/login") if you have a login page
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
+
+
 
     return (
         <StyledHeader>
-            <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
+            <LogoWrapper>
+                <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
+            </LogoWrapper>
             <NavMenu>
-                <NavItem onClick={handleHomeClick}>Home</NavItem>
-                <NavItem>Movies</NavItem>
-                <NavItem>TV Shows</NavItem>
-                <GenreSelect value={selectedGenre} onChange={handleGenreChange}>
+                <NavItem
+                    $active={location.pathname === "/browse" && !location.search.includes("type=") && selectedGenre === "all"}
+                    onClick={handleHomeClick}
+                >
+                    Home
+                </NavItem>
+
+                <NavItem
+                    $active={location.search.includes("type=Movies")}
+                    onClick={() => navigate("/browse?type=Movies")}
+                >
+                    Movies
+                </NavItem>
+
+                <NavItem
+                    $active={location.search.includes("type=TV-Shows")}
+                    onClick={() => navigate("/browse?type=TV-Shows")}
+                >
+                    TV Shows
+                </NavItem>
+
+                <GenreSelect
+                    value={selectedGenre}
+                    onChange={handleGenreChange}
+                    $active={isGenreSelected()}
+                >
                     <option value="all">Genres</option>
                     {genres.map((genre) => (
                         <option key={genre} value={genre}>
@@ -56,9 +101,10 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
                         </option>
                     ))}
                 </GenreSelect>
+
             </NavMenu>
 
-            <IconGroup>
+            <IconWrapper>
                 {searchOpen && (
                     <SearchInput
                         type="text"
@@ -70,8 +116,17 @@ const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allM
                     />
                 )}
                 <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
-                <StyledIcon as={FiUser} />
-            </IconGroup>
+                <UserWrapper>
+                    <StyledIcon as={FiUser} onClick={() => setDropdownOpen(!dropdownOpen)} />
+                    {dropdownOpen && (
+                        <Dropdown>
+                            <button onClick={handleLogout}>Log Out</button>
+                        </Dropdown>
+                    )}
+                </UserWrapper>
+
+            </IconWrapper>
+
         </StyledHeader>
     );
 };
@@ -106,33 +161,47 @@ const NavMenu = styled.nav`
   gap: 24px;
 `;
 
-const NavItem = styled.div`
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
+const NavItem = styled.div<{ $active?: boolean }>`
+    color: ${({ $active }) => ($active ? "white" : "gray")};
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
 `;
 
-const GenreSelect = styled.select`
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 600;
-  appearance: none;
-  cursor: pointer;
-  padding: 4px 8px;
-  option {
-    background: #000;
-    color: white;
-  }
+
+
+const GenreSelect = styled.select<{ $active?: boolean }>`
+    background: transparent;
+    border: none;
+    color: ${({ $active }) => ($active ? "white" : "gray")};
+    font-size: 1.125rem;
+    font-weight: 600;
+    appearance: none;
+    cursor: pointer;
+    padding: 4px 8px;
+
+    option {
+        background: #000;
+        color: white;
+    }
 `;
 
-const IconGroup = styled.div`
+
+const IconWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 250px; /* Reserve space so center stays centered */
+    justify-content: flex-end;
+`;
+
+const LogoWrapper = styled.div`
+  width: 340px;
   display: flex;
   align-items: center;
-  gap: 16px;
 `;
+
 
 const StyledIcon = styled.div`
   font-size: 24px;
@@ -151,4 +220,61 @@ const SearchInput = styled.input`
   background-color: black;
   color: white;
   width: 200px;
+`;
+
+
+const UserWrapper = styled.div`
+    position: relative;
+`;
+
+const Dropdown = styled.div`
+    position: absolute;
+    top: 38px;
+    right: 0;
+    background-color: #121212;
+    border-radius: 12px;
+    padding: 0px 0px;
+    z-index: 10;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-image: linear-gradient(to right, white 50%, #121212 50%);
+    background-size: 200% 100%;
+    background-position: right bottom;
+    transition: background-position 0.4s ease;
+
+    animation: slideDown 0.3s ease forwards;
+
+    &:hover {
+        background-position: left bottom;
+    }
+
+    &:hover button {
+        color: black;
+    }
+
+    button {
+        background: none;
+        border: none;
+        color: white;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: color 0.4s ease;
+        z-index: 1;
+        white-space: nowrap;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 `;

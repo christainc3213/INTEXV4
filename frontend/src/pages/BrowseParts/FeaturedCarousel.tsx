@@ -13,6 +13,7 @@ export interface FeaturedCarouselProps {
 
 const FeaturedCarousel = ({ featuredMovies, currentSlide, setCurrentSlide, getPosterPath }: FeaturedCarouselProps) => {
     const navigate = useNavigate();
+    
 
     return (
         <CarouselWrapper>

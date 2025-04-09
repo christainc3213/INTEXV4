@@ -18,16 +18,75 @@ const BrowsePage = () => {
     const [selectedGenre, setSelectedGenre] = useState("all");
     const [visibleGenres, setVisibleGenres] = useState(3);
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
     const navigate = useNavigate();
     const location = useLocation();
+    const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
+    const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
+    const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
+    const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
+
+
+    useEffect(() => {
+        const fetchRecommendations = async () => {
+            try {
+                const userId = 11;
+                const response = await fetch(`https://localhost:5001/api/BrowseRecommendations/${userId}`);
+                const titles: string[] = await response.json();
+
+                const matches = movies.filter((movie) =>
+                    titles.some((title) => title.trim().toLowerCase() === movie.title.trim().toLowerCase())
+                );
+
+                setRecommendedMovies(matches);
+            } catch (error) {
+                console.error("❌ Failed to fetch recommended titles", error);
+            }
+        };
+
+        const fetchGenreRecs = async (genre: string, setter: (movies: MovieType[]) => void) => {
+            try {
+                const userId = 11;
+                const res = await fetch(`https://localhost:5001/api/BrowseRecommendations/genre/${genre}/${userId}`);
+                const titles: string[] = await res.json();
+
+                const matches = movies.filter((movie) =>
+                    titles.some((title) => title.trim().toLowerCase() === movie.title.trim().toLowerCase())
+                );
+                setter(matches);
+            } catch (err) {
+                console.error(`❌ Failed to fetch ${genre} recommendations`, err);
+            }
+        };
+
+        if (!loading) {
+            fetchRecommendations();
+            fetchGenreRecs("action", setActionRecommendations);
+            fetchGenreRecs("comedies", setComedyRecommendations);
+            fetchGenreRecs("dramas", setDramaRecommendations);
+        }
+    }, [movies, loading]);
+
+
+
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const genreFromUrl = params.get("genre");
+        const typeFromUrl = params.get("type");
+
         if (genreFromUrl) {
             setSelectedGenre(genreFromUrl);
         } else {
             setSelectedGenre("all");
+        }
+
+        if (typeFromUrl === "Movies") {
+            setContentType("Movie");
+        } else if (typeFromUrl === "TV-Shows") {
+            setContentType("TV Show");
+        } else {
+            setContentType("all");
         }
     }, [location.search]);
 
@@ -123,12 +182,16 @@ const BrowsePage = () => {
     if (loading) return <Spinner size={60} color="#ffffff" centered />;
 
 
-    const filteredMovies = selectedGenre === "all"
+    const filteredByType = contentType === "all"
         ? movies
-        : movies.filter((m) => m.genre === selectedGenre);
+        : movies.filter((m) => m.type.toLowerCase() === contentType.toLowerCase());
+
+    const filteredMovies = selectedGenre === "all"
+        ? filteredByType
+        : filteredByType.filter((m) => m.genre === selectedGenre);
+    
 
     const featuredMovies = filteredMovies.slice(4, 9);
-    const recommendedMovies = movies.slice(5, 15);
 
     const moviesByGenre: Record<string, MovieType[]> = {};
     filteredMovies.forEach((movie) => {
@@ -170,7 +233,11 @@ const BrowsePage = () => {
                 getPosterPath={getPosterPath}
                 visibleGenres={visibleGenres}
                 filteredMovies={filteredMovies}
+                actionRecs={actionRecommendations}
+                comedyRecs={comedyRecommendations}
+                dramaRecs={dramaRecommendations}
             />
+
 
         </>
     );

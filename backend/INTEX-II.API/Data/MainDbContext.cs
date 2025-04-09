@@ -11,6 +11,7 @@ namespace INTEX_II.API.Data
         public DbSet<MovieTitle> MovieTitles { get; set; }
         public DbSet<MovieRating> MovieRatings { get; set; }
         public DbSet<MovieUser> MovieUsers { get; set; }
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
