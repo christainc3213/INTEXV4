@@ -1,5 +1,5 @@
 // Define the GenreKey type
-export type GenreKey = 
+export type GenreKey =
   | "action"
   | "adventure"
   | "anime_int_tv"
@@ -52,4 +52,10 @@ export interface MovieType extends GenreFlags {
   release_year?: number;
   rating?: string;
   duration?: string;
+
+  // Add these to support your transformed UI
+  genre: string; // TEMPORARY
+  slug: string;
+  docId: string;
+  posterFile: string;
 }
