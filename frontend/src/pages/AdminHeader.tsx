@@ -8,48 +8,61 @@ export interface HeaderProps {
     allMovies: MovieType[];
     searchQuery: string;
     setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-    handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     loadMovies: (size?: number, page?: number) => void;
     handleShowAddMovieForm: () => void;
     loading: boolean;
 }
 
-const AdminHeader = ({ searchQuery, loadMovies, setSearchQuery, handleShowAddMovieForm, loading }: HeaderProps) => {
+const AdminHeader = ({
+    searchQuery,
+    setSearchQuery,
+    loadMovies,
+    handleShowAddMovieForm,
+  }: HeaderProps) => {
     const navigate = useNavigate();
     const [searchOpen, setSearchOpen] = useState(false);
-
+  
+    const handleSearch = () => {
+      loadMovies(); // ✅ trigger search with current query
+    };
+  
     return (
-        <StyledHeader>
-            <Logo src="/whitelogo.png" alt="CineNiche" onClick={() => navigate("/browse")} />
-            <NavMenu>
-                <NavItem onClick={() => navigate("/browse")}>Home</NavItem>
-                <NavItem onClick={handleShowAddMovieForm}>Add Movie</NavItem>
-            </NavMenu>
-            <IconGroup>
-            {searchOpen && (
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                    <SearchInput
-                    type="text"
-                    placeholder="Search titles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                        e.preventDefault();
-                        loadMovies();
-                        }
-                    }}
-                    autoFocus={searchOpen}
-                    />
-                    {loading && <Spinner style={{ marginLeft: "8px" }} />} {/* 👈 Add this */}
-                </div>
-            )}
-                <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
-                <StyledIcon as={FiUser} />
-            </IconGroup>
-        </StyledHeader>
+      <StyledHeader>
+        <Logo src="/whitelogo.png" alt="CineNiche" onClick={() => navigate("/browse")} />
+        <NavMenu>
+          <NavItem onClick={() => navigate("/browse")}>Home</NavItem>
+          <NavItem onClick={handleShowAddMovieForm}>Add Movie</NavItem>
+        </NavMenu>
+        <IconGroup>
+          {searchOpen && (
+            <SearchInput
+              type="text"
+              placeholder="Search titles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSearch(); // ✅ ENTER pressed
+                }
+              }}
+              autoFocus={searchOpen}
+            />
+          )}
+          <StyledIcon
+            as={FiSearch}
+            onClick={() => {
+              if (searchOpen) {
+                handleSearch(); // ✅ SEARCH ICON clicked
+              }
+              setSearchOpen(true); // open input if not open
+            }}
+          />
+          <StyledIcon as={FiUser} />
+        </IconGroup>
+      </StyledHeader>
     );
-};
+  };  
 
 export default AdminHeader;
 
