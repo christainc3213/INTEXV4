@@ -2,20 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
-  // state variables for email and passwords
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const navigate = useNavigate();
-
-  // state variable for error messages
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
     navigate("/login");
   };
 
-  // handle change events for input fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "email") setEmail(value);
@@ -23,42 +19,78 @@ function Register() {
     if (name === "confirmPassword") setConfirmPassword(value);
   };
 
-  // handle submit event for the form
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const safeJson = async (response: Response) => {
+    const length = response.headers.get("content-length");
+    if (length && parseInt(length) > 0) {
+      return await response.json();
+    }
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // validate email and passwords
+    setError("");
+
     if (!email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address.");
-    } else if (password !== confirmPassword) {
+      return;
+    }
+
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
-    } else {
-      // clear error message
-      setError("");
-      // post data to the /register api
-      fetch("https://localhost:5001/register", {
+      return;
+    }
+
+    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/.test(password)) {
+      setError(
+        "Password must be at least 6 characters long and include at least 1 uppercase letter, 1 number, and 1 symbol."
+      );
+      return;
+    }
+
+    try {
+      const registerResponse = await fetch("https://localhost:5001/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      })
-        //.then((response) => response.json())
-        .then((data) => {
-          // handle success or error from the server
-          console.log(data);
-          if (data.ok) setError("Successful registration. Please log in.");
-          else setError("Error registering.");
-        })
-        .catch((error) => {
-          // handle network error
-          console.error(error);
-          setError("Error registering.");
-        });
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const registerResult = await safeJson(registerResponse);
+
+      if (!registerResponse.ok) {
+        throw new Error(registerResult?.message || "Error registering.");
+      }
+
+      const loginUrl = "https://localhost:5001/login?useCookies=true";
+      const loginResponse = await fetch(loginUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const loginResult = await safeJson(loginResponse);
+
+      if (!loginResponse.ok) {
+        throw new Error(
+          loginResult?.message || "Login failed after registration."
+        );
+      }
+
+      navigate("/browse");
+    } catch (error: any) {
+      console.error("Error in registration flow:", error);
+      setError(error.message || "Something went wrong.");
     }
   };
 
@@ -104,7 +136,9 @@ function Register() {
                 />
                 <label htmlFor="confirmPassword">Confirm Password</label>
               </div>
-
+              <span style={{ color: "red" }}>
+                {error && <p className="error">{error}</p>}
+              </span>
               <div className="d-grid mb-2">
                 <button
                   className="btn btn-primary btn-login text-uppercase fw-bold"
@@ -116,13 +150,13 @@ function Register() {
               <div className="d-grid mb-2">
                 <button
                   className="btn btn-primary btn-login text-uppercase fw-bold"
+                  type="button"
                   onClick={handleLoginClick}
                 >
                   Go to Login
                 </button>
               </div>
             </form>
-            <strong>{error && <p className="error">{error}</p>}</strong>
           </div>
         </div>
       </div>

@@ -82,11 +82,11 @@ const BrowsePage = () => {
     const [posterFilenames, setPosterFilenames] = useState<string[]>([]);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch("https://localhost:5001/MovieTitles");
-                const rawData = await response.json();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://localhost:5001/MovieTitles");
+        const rawData = await response.json();
 
 
                 const extractFirstGenre = (item: any): string => {
@@ -120,8 +120,8 @@ const BrowsePage = () => {
             }
         };
 
-        fetchData();
-    }, []);
+    fetchData();
+  }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {

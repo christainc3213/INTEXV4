@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./Identity.css";
 
 function LoginPage() {
   // state variables for email and passwords
@@ -61,7 +60,7 @@ function LoginPage() {
         throw new Error(data?.message || "Invalid email or password.");
       }
 
-      navigate("/");
+      navigate("/browse");
     } catch (error: any) {
       setError(error.message || "Error logging in.");
       console.error("Fetch attempt failed:", error);
@@ -130,8 +129,8 @@ function LoginPage() {
                   Register
                 </button>
               </div>
-              <hr className="my-4" />
-              <div className="d-grid mb-2">
+              {/* <hr className="my-4" /> */}
+              {/* <div className="d-grid mb-2">
                 <button
                   className="btn btn-google btn-login text-uppercase fw-bold"
                   type="button"
@@ -148,9 +147,13 @@ function LoginPage() {
                   <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
                   Facebook
                 </button>
-              </div>
+              </div> */}
             </form>
-            {error && <p className="error">{error}</p>}
+            {error && (
+              <p style={{ color: "red" }} className="error">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>

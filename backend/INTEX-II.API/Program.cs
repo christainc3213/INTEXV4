@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using INTEX_II.API.Data;
 using INTEX_II.API.Services;
+//using INTEX_II.API.DTOs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +15,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add databases
+// DATABASES
 builder.Services.AddDbContext<MainDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MainDbConnection")));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
 
+builder.Services.AddDbContext<InteractionDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("InteractionConnection")));
+
+//IDENTITY
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -52,7 +57,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // Replace with your frontend URL
+            policy.WithOrigins("http://localhost:3000") // Replace with your frontend URL
                 .AllowCredentials() // Required to allow cookies
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -86,8 +91,9 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
     // Ensure authentication cookie is removed
     context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
     {
+        Path = "/",
         HttpOnly = true,
-        Secure = false,
+        Secure = true,
         SameSite = SameSiteMode.None
     });
 
@@ -108,6 +114,7 @@ app.MapGet("/pingauth", (HttpContext context, ClaimsPrincipal user) =>
     Console.WriteLine($"Authenticated User Email: {email}");
 
     return Results.Json(new { email = email });
-}).RequireAuthorization();
+});
+    //.RequireAuthorization();
 
 app.Run();
