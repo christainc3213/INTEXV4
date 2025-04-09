@@ -129,8 +129,8 @@ function LoginPage() {
                   Register
                 </button>
               </div>
-              <hr className="my-4" />
-              <div className="d-grid mb-2">
+              {/* <hr className="my-4" /> */}
+              {/* <div className="d-grid mb-2">
                 <button
                   className="btn btn-google btn-login text-uppercase fw-bold"
                   type="button"
@@ -147,9 +147,13 @@ function LoginPage() {
                   <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
                   Facebook
                 </button>
-              </div>
+              </div> */}
             </form>
-            {error && <p className="error">{error}</p>}
+            {error && (
+              <p style={{ color: "red" }} className="error">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>
