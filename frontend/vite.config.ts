@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000,
+    port: 5173,
     headers: {
       "Content-Security-Policy":
         "default-src 'self'; " +
@@ -13,7 +13,7 @@ export default defineConfig({
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com data:; " +
         "img-src 'self' data:; " +
-        "connect-src 'self' https://localhost:5000; " +
+        "connect-src 'self' https://localhost:5001; " +
         "frame-src 'self'; " +
         "object-src 'none'; " +
         "base-uri 'self'; " +
