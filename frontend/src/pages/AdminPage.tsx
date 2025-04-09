@@ -5,6 +5,7 @@ import NewMovieForm from '../components/AddMovieForm';
 import EditMovieForm from '../components/EditMovieForm';
 import styled from 'styled-components';
 import Pagination from '../components/Pagination';
+import AdminHeader from './AdminHeader';
 
 const AdminPage = () => {
     const [movies, setMovies] = useState<MovieType[]>([]);
@@ -14,24 +15,23 @@ const AdminPage = () => {
     const [totalPages, setTotalPages] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
     const [showForm, setShowForm] = useState<boolean>(false);
-    const [editingMovie, setEditingMovie] = useState<MovieType | null>(null)
+    const [editingMovie, setEditingMovie] = useState<MovieType | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        const loadMovies = async (size = pageSize, page = currentPage) => {
-            try {
-                setLoading(true);
-                const data = await fetchMovies(size, page);
-                setMovies(data.movies || []);
-                setTotalPages(Math.ceil((data.totalNumMovies || 0) / size));
-            } catch (error) {
-                setError((error as Error).message);
-                setMovies([]);
-            } finally {
-                setLoading(false);
-            }
-        };                
-        loadMovies();
-    }, [pageSize, currentPage]);
+
+    const loadMovies = async (size = pageSize, page = currentPage, search = searchQuery) => {
+        try {
+            setLoading(true);
+            const data = await fetchMovies(size, page, search);
+            setMovies(data.movies || []);
+            setTotalPages(Math.ceil((data.totalNumMovies || 0) / size));
+        } catch (error) {
+            setError((error as Error).message);
+            setMovies([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -49,13 +49,21 @@ const AdminPage = () => {
         const confirmDelete = window.confirm('Are you sure you want to delete this movie?');
         if (!confirmDelete) return;
 
-        try{
-            await deleteMovie(show_id)
-            setMovies(movies.filter((movie) => movie.show_id !== show_id))
+        try {
+            await deleteMovie(show_id);
+            setMovies(movies.filter((movie) => movie.show_id !== show_id));
         } catch (error) {
-            alert('failed to delete movie. Please try again.')
+            alert('Failed to delete movie. Please try again.');
         }
-    }
+    };
+
+    const handleEdit = (movie: MovieType) => {
+        setEditingMovie(movie);
+    };
+
+    const handleShowAddMovieForm = () => {
+        setShowForm(true);
+    };
 
     const getPosterPath = (title: string): string => {
         return `/Movie Posters/${title
@@ -63,59 +71,78 @@ const AdminPage = () => {
             .trim()}.jpg`;
     };
 
-    const paginatedMovies = movies || [];
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // ✅ Important: reset to page 1 on new search
+    };    
+    
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            const loadMovies = async () => {
+                try {
+                    setLoading(true);
+                    const data = await fetchMovies(pageSize, currentPage, searchQuery);
+                    setMovies(data.movies || []);
+                    setTotalPages(Math.ceil((data.totalNumMovies || 0) / pageSize));
+                } catch (err) {
+                    setError((err as Error).message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+    
+            loadMovies();
+        }, 400); // Debounce delay
+    
+        return () => clearTimeout(delayDebounce);
+    }, [searchQuery, currentPage, pageSize]); // 👈 Notice currentPage is included here!
+
+    const paginatedMovies = movies || [];   
 
     if (loading) {
-        return <div className="text-center">Loading books...</div>; // Loading state
+        return <div className="text-center">Loading movies...</div>;
     }
     if (error) {
-        return <div className="text-danger text-center">Error: {error}</div>; // Error state
-    }
+        return <div className="text-danger text-center">Error: {error}</div>;
+    }   
 
     return (
         <div style={{ backgroundColor: '#141414', color: '#fff' }}>
+            <AdminHeader
+                allMovies={movies}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                handleSearchChange={handleSearchChange}
+                loadMovies={loadMovies}
+                handleShowAddMovieForm={handleShowAddMovieForm} 
+                loading={loading} 
+            />
             <div style={{ padding: '2rem 4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>Manage Movies</div>
-                {!showForm && (
-                                <div onClick={() => setShowForm(true)} style={{ cursor: 'pointer', color: '#facc15' }}>+ Add Movie</div>
-            )}
             </div>
-
-            <div style={{ padding: '2rem 4rem', alignItems: 'right' }}>
+            {/* New movie form */}
             {showForm && (
                 <NewMovieForm
                     onSuccess={() => {
                         setShowForm(false);
-                        try {
-                            fetchMovies(pageSize, currentPage)
-                            .then((data) => {
-                                setMovies(data.movies);
-                            });
-                        } catch (error) {
-                            console.error("Failed to fetch updated movies:", error);
-                        }
+                        loadMovies();
                     }}
                     onCancel={() => setShowForm(false)}
                 />
             )}
-
+            {/* Edit movie form */}
             {editingMovie && (
-                <EditMovieForm movie={editingMovie} onSuccess={() => {
-                    setEditingMovie(null);
-                    try {
-                        fetchMovies(pageSize, currentPage)
-                        .then((data) => {
-                            setMovies(data.movies);
-                        });
-                    } catch (error) {
-                        console.error("Failed to fetch updated movies:", error);
-                    }
-                }}
-                onCancel={() => setEditingMovie(null)}
+                <EditMovieForm
+                    movie={editingMovie}
+                    onSuccess={() => {
+                        setEditingMovie(null);
+                        loadMovies();
+                    }}
+                    onCancel={() => setEditingMovie(null)}
                 />
             )}
-                <br />
-                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
+            {/* Movie list */}
+            <div style={{ padding: '1rem 4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <label>
                         Show:
                         <select value={pageSize} onChange={handlePageSizeChange} style={{ marginLeft: '0.5rem' }}>
@@ -127,53 +154,57 @@ const AdminPage = () => {
                     </label>
                     <div>Page {currentPage} of {totalPages}</div>
                 </div>
-
-                <GenreRow>
-                <GenreTitle>All Movies</GenreTitle>
-                <ScrollRow>
-                    {paginatedMovies.map((movie) => (
-                    <MovieCard key={movie.show_id}>
-                        <MoviePoster
-                        src={getPosterPath(movie.title)}
-                        alt={movie.title}
-                        onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
-                        }}
-                        />
-                        <MovieOverlay className="overlay">
-                        <h4>{movie.title}</h4>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button
-                            onClick={() => setEditingMovie(movie)}
-                            style={{
-                                backgroundColor: '#facc15',
-                                color: '#000',
-                                padding: '0.4rem 0.6rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                            >
-                            Edit
-                            </button>
-                            <button
-                            onClick={() => handleDelete(movie.show_id)}
-                            style={{
-                                backgroundColor: '#ef4444',
-                                color: '#fff',
-                                padding: '0.4rem 0.6rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                            >
-                            Delete
-                            </button>
-                        </div>
-                        </MovieOverlay>
-                    </MovieCard>
-                    ))}
-                </ScrollRow>
-                </GenreRow>
-
+                {movies.length > 0 ? (
+                    <GenreRow>
+                        <GenreTitle>All Movies</GenreTitle>
+                        <ScrollRow>
+                            {paginatedMovies.map((movie) => (
+                            <MovieCard key={movie.show_id}>
+                                <MoviePoster
+                                src={getPosterPath(movie.title)}
+                                alt={movie.title}
+                                onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                                }}
+                                />
+                                <MovieOverlay className="overlay">
+                                <h4>{movie.title}</h4>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                    onClick={() => setEditingMovie(movie)}
+                                    style={{
+                                        backgroundColor: '#facc15',
+                                        color: '#000',
+                                        padding: '0.4rem 0.6rem',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                    >
+                                    Edit
+                                    </button>
+                                    <button
+                                    onClick={() => handleDelete(movie.show_id)}
+                                    style={{
+                                        backgroundColor: '#ef4444',
+                                        color: '#fff',
+                                        padding: '0.4rem 0.6rem',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                    >
+                                    Delete
+                                    </button>
+                                </div>
+                                </MovieOverlay>
+                            </MovieCard>
+                            ))}
+                        </ScrollRow>
+                        </GenreRow>
+                ) : (
+                    <div>No movies found.</div>
+                )}
+            </div>
+            <div style={{ padding: '1rem 6rem' }}>
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -270,11 +301,27 @@ const MovieOverlay = styled.div`
   }
 `;
 
+const IconGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
 
-const GenreSelect = styled.select`
-  margin-left: 16px;
-  padding: 4px 8px;
-  font-size: 0.85rem;
+const StyledIcon = styled.div`
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
+
+const SearchInput = styled.input`
+  padding: 6px 12px;
+  font-size: 1rem;
+  border: 1px solid white;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  margin-right: 12px;
+  background-color: black;
+  color: white;
+  width: 200px;
 `;

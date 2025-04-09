@@ -8,25 +8,23 @@ interface fetchMoviesResponse {
 
 const API_URL =
     "https://localhost:5001/MainDb";
+
+    export const fetchMovies = async (pageSize = 10, pageNumber = 1, searchTerm = '') => {
+        const query = new URLSearchParams({
+            pageSize: pageSize.toString(),
+            pageNumber: pageNumber.toString(),
+        });
     
-export const fetchMovies = async (pageSize: number, pageNumber: number): Promise<fetchMoviesResponse> => {
-    try {
-        const response = await fetch(
-            `${API_URL}?pageSize=${pageSize}&pageNumber=${pageNumber}`
-        );
-
-        // Check if the response is ok
-        if (!response.ok) {
-            throw new Error(`Error fetching books: ${response.statusText}`);
+        if (searchTerm.trim()) {
+            query.append('search', searchTerm.trim());
         }
-
-        // Check if the response is valid JSON
+    
+        const response = await fetch(`${API_URL}?${query.toString()}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch movies');
+        }
         return await response.json();
-    } catch (error) {
-        console.error("Error fetching books:", error);
-        throw error;
-    }
-};
+    };
 
 export const handleAddMovie = async (newMovie: MovieType): Promise<MovieType> => {
     try {

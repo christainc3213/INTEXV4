@@ -16,28 +16,35 @@ namespace INTEX_II.API.Controllers
             _mainDbContext = mainDbContext;
         }
 
+
         [HttpGet]
-        public IActionResult Get(int pageSize = 5, int pageNumber = 1)
+        public IActionResult Get(int pageSize = 5, int pageNumber = 1, string? search = null)
         {
-            var query = _mainDbContext.MovieTitles.AsQueryable();
+        var query = _mainDbContext.MovieTitles.AsQueryable();
 
-            var totalMovies = query.Count();
-            var totalPages = (int)Math.Ceiling((double)totalMovies / pageSize);
-
-            var movieList = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var movieObject = new
-            {
-                Movies = movieList,
-                TotalNumMovies = totalMovies,
-                TotalPages = totalPages
-            };
-
-            return Ok(movieObject);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(m => m.title.ToLower().Contains(search));
         }
+
+        var totalMovies = query.Count();
+        var totalPages = (int)Math.Ceiling((double)totalMovies / pageSize);
+
+        var movieList = query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var movieObject = new
+        {
+            Movies = movieList,
+            TotalNumMovies = totalMovies,
+            TotalPages = totalPages
+        };
+
+        return Ok(movieObject);
+        }
+
 
         [HttpPost("AddMovie")]
         public IActionResult AddMovie([FromBody] MovieTitle newMovie)
