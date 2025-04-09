@@ -55,6 +55,10 @@ const NewMovieForm = ({ onSuccess, onCancel }: NewMovieFormProps) => {
     rating: "",
     duration: "",
     description: "",
+    genre: "",
+    slug: "",
+    docId: "",
+    posterFile: "",
     ...genreKeys.reduce((acc, key) => ({ ...acc, [key]: 0 }), {}), // Initialize all genre flags to 0
   });
 
