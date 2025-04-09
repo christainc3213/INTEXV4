@@ -1,3 +1,4 @@
+// Define the GenreKey type
 export type GenreKey =
   | "action"
   | "adventure"
@@ -30,14 +31,20 @@ export type GenreKey =
   | "comedy_tv"
   | "drama_tv"
   | "talk_show_comedy_tv"
-  | "thrillers"; // Define the mapped type for genre flags
-export type GenreFlags = { [key in GenreKey]?: number };
+  | "thrillers";
+
+// Define the mapped type for genre flags
+export type GenreFlags = {
+  [key in GenreKey]?: number;
+};
+
 // Combine the explicit properties with the genre flags
 export interface MovieType extends GenreFlags {
   show_id: string;
   type: string;
   title: string;
   description: string;
+
   // Optional metadata
   director?: string;
   cast?: string;
@@ -45,10 +52,9 @@ export interface MovieType extends GenreFlags {
   release_year?: number;
   rating?: string;
   duration?: string;
-  // Add these to support your transformed UI
-  genre: string;
-  // TEMPORARY
 
+  // Add these to support your transformed UI
+  genre: string; // TEMPORARY
   slug: string;
   docId: string;
   posterFile: string;

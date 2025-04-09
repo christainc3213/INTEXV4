@@ -20,7 +20,7 @@ namespace INTEX_II.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieTitle>>> GetAll()
         {
-            return await _context.MovieTitles.Take(500).ToListAsync();
+            return await _context.MovieTitles.Take(9000).ToListAsync();
         }
 
         [HttpGet("{id}")]
