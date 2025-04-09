@@ -2,12 +2,12 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-// import BrowsePage from "./pages/BrowsePage";
 import PrivacyPage from "./pages/PrivacyPage";
 import MoviePage from "./pages/MoviePage";
 import RegisterPage from "./pages/RegisterPage";
 import BrowsePage from "./pages/BrowsePage";
 import AdminPage from "./pages/AdminPage";
+import SearchResults from "./pages/SearchResults";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /*---> Component <---*/
@@ -22,6 +22,7 @@ const App: React.FC = () => {
                 <Route path="/browse" element={<BrowsePage />} />
                 <Route path="/movie/:slug" element={<MoviePage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/search" element={<SearchResults />} />
             </Routes>
         </Router>
     );
