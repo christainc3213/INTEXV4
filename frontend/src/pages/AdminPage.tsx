@@ -77,25 +77,8 @@ const AdminPage = () => {
     };    
     
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            const loadMovies = async () => {
-                try {
-                    setLoading(true);
-                    const data = await fetchMovies(pageSize, currentPage, searchQuery);
-                    setMovies(data.movies || []);
-                    setTotalPages(Math.ceil((data.totalNumMovies || 0) / pageSize));
-                } catch (err) {
-                    setError((err as Error).message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-    
-            loadMovies();
-        }, 400); // Debounce delay
-    
-        return () => clearTimeout(delayDebounce);
-    }, [searchQuery, currentPage, pageSize]); // 👈 Notice currentPage is included here!
+        loadMovies();
+    }, [pageSize, currentPage]);      
 
     const paginatedMovies = movies || [];   
 
@@ -112,10 +95,9 @@ const AdminPage = () => {
                 allMovies={movies}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                handleSearchChange={handleSearchChange}
-                loadMovies={loadMovies}
-                handleShowAddMovieForm={handleShowAddMovieForm} 
-                loading={loading} 
+                loadMovies={loadMovies} // ✅ used when Enter or search icon is clicked
+                handleShowAddMovieForm={handleShowAddMovieForm}
+                loading={loading} // ✅ Added missing prop
             />
             <div style={{ padding: '2rem 4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             </div>
