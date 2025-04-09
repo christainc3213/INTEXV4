@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { MovieType } from "../../types/MovieType";
+import MovieScrollRow from "../../components/MovieScrollRow";
 
 export interface GenreRowsProps {
     moviesByGenre: Record<string, MovieType[]>;
@@ -10,6 +10,9 @@ export interface GenreRowsProps {
     getPosterPath: (title: string) => string;
     visibleGenres: number;
     filteredMovies: MovieType[];
+    actionRecs: MovieType[];
+    comedyRecs: MovieType[];
+    dramaRecs: MovieType[];
 }
 
 const GenreRows = ({
@@ -20,63 +23,49 @@ const GenreRows = ({
                        getPosterPath,
                        visibleGenres,
                        filteredMovies,
+                       actionRecs,
+                       comedyRecs,
+                       dramaRecs
                    }: GenreRowsProps) => {
-    const navigate = useNavigate();
-
     return (
         <PageBackground>
             {selectedGenre === "all" && (
-                <GenreRow>
-                    <GenreTitle>Recommended For You</GenreTitle>
-                    <ScrollRow>
-                        {recommendedMovies.map((movie) => (
-                            <MovieCard key={movie.docId}>
-                                <MoviePoster
-                                    src={getPosterPath(movie.title)}
-                                    alt={movie.title}
-                                    onError={(e) => {
-                                        (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
-                                    }}
-                                />
-                                <MovieOverlay className="overlay">
-                                    <h4>{movie.title}</h4>
-                                    <button onClick={() => navigate(`/movie/${movie.slug}`)}>Go to Movie</button>
-                                </MovieOverlay>
-                            </MovieCard>
-                        ))}
-                    </ScrollRow>
-                </GenreRow>
+                <MovieScrollRow
+                    title="Recommended For You"
+                    movies={recommendedMovies}
+                    getPosterPath={getPosterPath}
+                />
             )}
 
-            {selectedGenre === "all"
-                ? Object.entries(moviesByGenre)
+            {selectedGenre === "all" ? (
+                Object.entries(moviesByGenre)
                     .slice(0, visibleGenres)
                     .map(([genre, genreMovies]) => (
-                        <GenreRow key={genre}>
-                            <GenreTitle>{formatGenreName(genre)}</GenreTitle>
-                            <ScrollRow>
-                                {genreMovies.map((movie) => (
-                                    <MovieCard key={movie.docId}>
-                                        <MoviePoster
-                                            src={getPosterPath(movie.title)}
-                                            alt={movie.title}
-                                            onError={(e) => {
-                                                (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
-                                            }}
-                                        />
-                                        <MovieOverlay className="overlay">
-                                            <h4>{movie.title}</h4>
-                                            <button onClick={() => navigate(`/movie/${movie.slug}`)}>Go to Movie</button>
-                                        </MovieOverlay>
-                                    </MovieCard>
-                                ))}
-                            </ScrollRow>
-                        </GenreRow>
+                        <MovieScrollRow
+                            key={genre}
+                            title={formatGenreName(genre)}
+                            movies={genreMovies}
+                            getPosterPath={getPosterPath}
+                        />
                     ))
-                : (
+            ) : (
+                <>
+                    {["action", "comedies", "dramas"].includes(selectedGenre) && (
+                        <MovieScrollRow
+                            title={`Recommended ${formatGenreName(selectedGenre)} For You`}
+                            movies={
+                                selectedGenre === "action"
+                                    ? actionRecs
+                                    : selectedGenre === "comedies"
+                                        ? comedyRecs
+                                        : dramaRecs
+                            }
+                            getPosterPath={getPosterPath}
+                        />
+                    )}
                     <GenreRow>
-                        <GenreTitle>{`All ${formatGenreName(selectedGenre)} Movies`}</GenreTitle>
-                        <ScrollRow style={{ flexWrap: "wrap", overflowX: "hidden" }}>
+                        <GenreTitle>{`All ${formatGenreName(selectedGenre)}`}</GenreTitle>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem" }}>
                             {filteredMovies.map((movie) => (
                                 <MovieCard key={movie.docId}>
                                     <MoviePoster
@@ -88,13 +77,16 @@ const GenreRows = ({
                                     />
                                     <MovieOverlay className="overlay">
                                         <h4>{movie.title}</h4>
-                                        <button onClick={() => navigate(`/movie/${movie.slug}`)}>Go to Movie</button>
+                                        <button onClick={() => window.location.href = `/movie/${movie.slug}`}>
+                                            Go to Movie
+                                        </button>
                                     </MovieOverlay>
                                 </MovieCard>
                             ))}
-                        </ScrollRow>
+                        </div>
                     </GenreRow>
-                )}
+                </>
+            )}
         </PageBackground>
     );
 };
