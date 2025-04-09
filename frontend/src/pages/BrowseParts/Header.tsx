@@ -42,6 +42,12 @@ const Header = ({
           },
         });
 
+const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allMovies }: HeaderProps) => {
+    const navigate = useNavigate();
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
         if (response.ok) {
           const data = await response.json();
 
@@ -73,66 +79,85 @@ const Header = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery(""); // reset input
-      setSearchOpen(false); // close input
-    }
-  };
+    const handleHomeClick = () => {
+        navigate("/browse");
+        setTimeout(() => setSelectedGenre("all"), 0);
+    };
 
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const genre = e.target.value;
-    navigate(`/browse?genre=${genre}`);
-  };
+    
+    const isGenreSelected = () => {
+        return selectedGenre !== "all" && !window.location.search.includes("type=");
+    };
 
-  const handleHomeClick = () => {
-    navigate("/browse");
-    setTimeout(() => setSelectedGenre("all"), 0);
-  };
+    return (
+        <StyledHeader>
+            <LogoWrapper>
+                <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
+            </LogoWrapper>
+            <NavMenu>
+                <NavItem
+                    $active={location.pathname === "/browse" && !location.search.includes("type=") && selectedGenre === "all"}
+                    onClick={handleHomeClick}
+                >
+                    Home
+                </NavItem>
 
-  return (
-    <StyledHeader>
-      <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
-      <NavMenu>
-        <NavItem onClick={handleHomeClick}>Home</NavItem>
-        <NavItem>Movies</NavItem>
-        <NavItem>TV Shows</NavItem>
-        <GenreSelect value={selectedGenre} onChange={handleGenreChange}>
-          <option value="all">Genres</option>
-          {genres.map((genre) => (
-            <option key={genre} value={genre}>
-              {formatGenreName(genre)}
-            </option>
-          ))}
-        </GenreSelect>
-      </NavMenu>
+                <NavItem
+                    $active={location.search.includes("type=Movies")}
+                    onClick={() => navigate("/browse?type=Movies")}
+                >
+                    Movies
+                </NavItem>
 
-      <IconGroup>
-        {searchOpen && (
-          <SearchInput
-            type="text"
-            placeholder="Search titles..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            autoFocus
-          />
-        )}
-        <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
-        <StyledIcon
-          as={FiUser}
-          onClick={() => setUserMenuOpen(!userMenuOpen)}
-        />
-        {userMenuOpen && (
-          <UserDropdown ref={userMenuRef}>
-            <Logout>Logout</Logout>
-            {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
-          </UserDropdown>
-        )}
-      </IconGroup>
-    </StyledHeader>
-  );
+                <NavItem
+                    $active={location.search.includes("type=TV-Shows")}
+                    onClick={() => navigate("/browse?type=TV-Shows")}
+                >
+                    TV Shows
+                </NavItem>
+
+                <GenreSelect
+                    value={selectedGenre}
+                    onChange={handleGenreChange}
+                    $active={isGenreSelected()}
+                >
+                    <option value="all">Genres</option>
+                    {genres.map((genre) => (
+                        <option key={genre} value={genre}>
+                            {formatGenreName(genre)}
+                        </option>
+                    ))}
+                </GenreSelect>
+
+            </NavMenu>
+
+            <IconWrapper>
+                {searchOpen && (
+                    <SearchInput
+                        type="text"
+                        placeholder="Search titles..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        autoFocus
+                    />
+                )}
+                <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
+
+                <StyledIcon
+                  as={FiUser}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                />
+                {userMenuOpen && (
+                  <UserDropdown ref={userMenuRef}>
+                    <Logout>Logout</Logout>
+                    {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
+                  </UserDropdown>
+                )}
+            </IconWrapper>
+
+        </StyledHeader>
+    );
 };
 
 export default Header;
@@ -163,33 +188,47 @@ const NavMenu = styled.nav`
   gap: 24px;
 `;
 
-const NavItem = styled.div`
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
+const NavItem = styled.div<{ $active?: boolean }>`
+    color: ${({ $active }) => ($active ? "white" : "gray")};
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
 `;
 
-const GenreSelect = styled.select`
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 600;
-  appearance: none;
-  cursor: pointer;
-  padding: 4px 8px;
-  option {
-    background: #000;
-    color: white;
-  }
+
+
+const GenreSelect = styled.select<{ $active?: boolean }>`
+    background: transparent;
+    border: none;
+    color: ${({ $active }) => ($active ? "white" : "gray")};
+    font-size: 1.125rem;
+    font-weight: 600;
+    appearance: none;
+    cursor: pointer;
+    padding: 4px 8px;
+
+    option {
+        background: #000;
+        color: white;
+    }
 `;
 
-const IconGroup = styled.div`
+
+const IconWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 250px; /* Reserve space so center stays centered */
+    justify-content: flex-end;
+`;
+
+const LogoWrapper = styled.div`
+  width: 340px;
   display: flex;
   align-items: center;
-  gap: 16px;
 `;
+
 
 const StyledIcon = styled.div`
   font-size: 24px;
@@ -236,4 +275,4 @@ const UserDropdown = styled.div`
       background: #222;
     }
   }
-`;
+  `;

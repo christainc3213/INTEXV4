@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import Spinner from "../components/Spinner";
 
 interface Movie {
   show_id: string;
@@ -112,8 +113,8 @@ const MoviePage = () => {
     fetchMovie();
   }, [slug]);
 
-  if (loading) return <h2 style={{ color: "white" }}>Loading...</h2>;
-  if (!movie) return <h2 style={{ color: "white" }}>Movie not found</h2>;
+    if (loading) return <Spinner size={60} color="#ffffff" centered />;
+    if (!movie) return <h2 style={{ color: "white" }}>Movie not found</h2>;
 
   const posterUrl = getPosterPath(movie.title);
 
