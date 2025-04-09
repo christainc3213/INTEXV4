@@ -16,7 +16,7 @@ const BrowsePage = () => {
     const [genres, setGenres] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedGenre, setSelectedGenre] = useState("all");
-    const [visibleGenres, setVisibleGenres] = useState(3);
+    const [visibleGenres, setVisibleGenres] = useState(100);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
     const navigate = useNavigate();
@@ -101,11 +101,11 @@ const BrowsePage = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://localhost:5001/MovieTitles");
-        const rawData = await response.json();
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch("https://localhost:5001/MovieTitles");
+                const rawData = await response.json();
 
                 const genreKeys = [
                     "action",
@@ -176,8 +176,8 @@ const BrowsePage = () => {
             }
         };
 
-    fetchData();
-  }, []);
+        fetchData();
+    }, []);
 
     if (loading) return <Spinner size={60} color="#ffffff" centered />;
 
@@ -189,7 +189,7 @@ const BrowsePage = () => {
     const filteredMovies = selectedGenre === "all"
         ? filteredByType
         : filteredByType.filter((m) => m.genre === selectedGenre);
-    
+
 
     const featuredMovies = filteredMovies.slice(4, 9);
 
