@@ -3,10 +3,6 @@ using INTEX_II.API.Data;
 using INTEX_II.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using INTEX_II.API.Data;
-using INTEX_II.API.Services;
-//using INTEX_II.API.DTOs;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,20 +21,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<InteractionDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("InteractionConnection")));
 
-//IDENTITY
+// IDENTITY
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-//builder.Services.AddIdentityApiEndpoints<IdentityUser>()  
-//    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 12;
+    options.Password.RequiredUniqueChars = 1;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
-    options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email; // Ensure email is stored in claims
+    options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email;
 });
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUserClaimsPrincipalFactory>();
@@ -46,7 +47,7 @@ builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUser
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.None; // change after adding https for production
+    options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.Name = ".AspNetCore.Identity.Application";
     options.LoginPath = "/login";
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -57,8 +58,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // Replace with your frontend URL
-                .AllowCredentials() // Required to allow cookies
+            policy.WithOrigins("http://localhost:5173")
+                .AllowCredentials()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .WithExposedHeaders("Content-Security-Policy");
@@ -88,7 +89,6 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 {
     await signInManager.SignOutAsync();
 
-    // Ensure authentication cookie is removed
     context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
     {
         Path = "/",
@@ -115,6 +115,5 @@ app.MapGet("/pingauth", (HttpContext context, ClaimsPrincipal user) =>
 
     return Results.Json(new { email = email });
 });
-    //.RequireAuthorization();
 
 app.Run();

@@ -3,49 +3,57 @@ import { useNavigate } from "react-router-dom";
 import { MovieType } from "../../types/MovieType";
 
 export interface FeaturedCarouselProps {
-    featuredMovies: MovieType[];
-    currentSlide: number;
-    setCurrentSlide: (index: number) => void;
-    getPosterPath: (title: string) => string;
-    movies: MovieType[];
-    selectedGenre: string;
+  featuredMovies: MovieType[];
+  currentSlide: number;
+  setCurrentSlide: (index: number) => void;
+  getPosterPath: (title: string) => string;
+  movies: MovieType[];
+  selectedGenre: string;
 }
 
-const FeaturedCarousel = ({ featuredMovies, currentSlide, setCurrentSlide, getPosterPath }: FeaturedCarouselProps) => {
-    const navigate = useNavigate();
+const FeaturedCarousel = ({
+  featuredMovies,
+  currentSlide,
+  setCurrentSlide,
+  getPosterPath,
+}: FeaturedCarouselProps) => {
+  const navigate = useNavigate();
 
-    return (
-        <CarouselWrapper>
-            <Carousel style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                {featuredMovies.map((movie, index) => (
-                    <CarouselItem key={index}>
-                        <Backdrop
-                            src={getPosterPath(movie.title)}
-                            alt={movie.title}
-                            onError={(e) => {
-                                (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
-                            }}
-                        />
-                        <Overlay>
-                            <h2>{movie.title}</h2>
-                            <p>{movie.description}</p>
-                            <button onClick={() => navigate(`/movie/${movie.slug}`)}>Go to Movie</button>
-                        </Overlay>
-                    </CarouselItem>
-                ))}
-            </Carousel>
-            <GradientFade />
-            <Dots>
-                {featuredMovies.map((_, index) => (
-                    <Dot
-                        key={index}
-                        $active={index === currentSlide}
-                        onClick={() => setCurrentSlide(index)}
-                    />
-                ))}
-            </Dots>
-        </CarouselWrapper>
-    );
+  return (
+    <CarouselWrapper>
+      <Carousel style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+        {featuredMovies.map((movie, index) => (
+          <CarouselItem key={index}>
+            <Backdrop
+              src={getPosterPath(movie.title)}
+              alt={movie.title}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src =
+                  "/Movie Posters/fallback.jpg";
+              }}
+            />
+            <Overlay>
+              <h2>{movie.title}</h2>
+              <p>{movie.description}</p>
+              <button onClick={() => navigate(`/movie/${movie.slug}`)}>
+                Go to Movie
+              </button>
+            </Overlay>
+          </CarouselItem>
+        ))}
+      </Carousel>
+      <GradientFade />
+      <Dots>
+        {featuredMovies.map((_, index) => (
+          <Dot
+            key={index}
+            $active={index === currentSlide}
+            onClick={() => setCurrentSlide(index)}
+          />
+        ))}
+      </Dots>
+    </CarouselWrapper>
+  );
 };
 
 export default FeaturedCarousel;
@@ -83,7 +91,11 @@ const Overlay = styled.div`
   width: 100%;
   padding: 3rem 2rem 6rem 2rem;
   color: white;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(18, 18, 18, 1) 90%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(18, 18, 18, 1) 90%
+  );
   z-index: 2;
 
   h2 {
@@ -137,6 +149,10 @@ const Dot = styled.div<{ $active: boolean }>`
   height: 10px;
   border-radius: 50%;
   background: ${(props) => (props.$active ? "#000" : "#ccc")};
-  transition: background 0.3s;
+  border: ${(props) =>
+    props.$active ? "2px solid #ccc" : "none"}; /* ✅ only active gets border */
+  transition:
+    background 0.3s,
+    border 0.3s;
   cursor: pointer;
 `;

@@ -3,82 +3,139 @@ import { FiSearch, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { MovieType } from "../../types/MovieType";
 import React, { useState } from "react";
-
+import { useEffect, useRef } from "react";
+import Logout from "../../components/Logout";
+import AdminButton from "../../components/AdminButton";
 
 export interface HeaderProps {
-    selectedGenre: string;
-    setSelectedGenre: (genre: string) => void;
-    genres: string[];
-    formatGenreName: (genre: string) => string;
-    allMovies: MovieType[];
+  selectedGenre: string;
+  setSelectedGenre: (genre: string) => void;
+  genres: string[];
+  formatGenreName: (genre: string) => string;
+  allMovies: MovieType[];
 }
 
+const Header = ({
+  selectedGenre,
+  setSelectedGenre,
+  genres,
+  formatGenreName,
+  allMovies,
+}: HeaderProps) => {
+  const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuWrapperRef = useRef<HTMLDivElement>(null);
 
-const Header = ({ selectedGenre, setSelectedGenre, genres, formatGenreName, allMovies }: HeaderProps) => {
-    const navigate = useNavigate();
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch("https://localhost:5001/user/info", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-    const handleSearch = () => {
-        if (searchQuery.trim()) {
-            navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-            setSearchQuery(""); // reset input
-            setSearchOpen(false); // close input
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.roles?.includes("Administrator")) {
+            setUserRole("Administrator");
+          } else {
+            setUserRole("User"); // Optional
+          }
+        } else {
+          console.error("Failed to fetch user info");
         }
+      } catch (err) {
+        console.error("Error fetching user info", err);
+      }
     };
 
-    const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const genre = e.target.value;
-        navigate(`/browse?genre=${genre}`);
+    fetchUserInfo();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuWrapperRef.current &&
+        !userMenuWrapperRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
     };
 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    const handleHomeClick = () => {
-        navigate("/browse");
-        setTimeout(() => setSelectedGenre("all"), 0);
-    };
-    
-    
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(""); // reset input
+      setSearchOpen(false); // close input
+    }
+  };
 
-    return (
-        <StyledHeader>
-            <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
-            <NavMenu>
-                <NavItem onClick={handleHomeClick}>Home</NavItem>
-                <NavItem>Movies</NavItem>
-                <NavItem>TV Shows</NavItem>
-                <GenreSelect value={selectedGenre} onChange={handleGenreChange}>
-                    <option value="all">Genres</option>
-                    {genres.map((genre) => (
-                        <option key={genre} value={genre}>
-                            {formatGenreName(genre)}
-                        </option>
-                    ))}
-                </GenreSelect>
-            </NavMenu>
+  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const genre = e.target.value;
+    navigate(`/browse?genre=${genre}`);
+  };
 
-            <IconGroup>
-                {searchOpen && (
-                    <SearchInput
-                        type="text"
-                        placeholder="Search titles..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                        autoFocus
-                    />
-                )}
-                <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
-                <StyledIcon as={FiUser} />
-            </IconGroup>
-        </StyledHeader>
-    );
+  const handleHomeClick = () => {
+    navigate("/browse");
+    setTimeout(() => setSelectedGenre("all"), 0);
+  };
+
+  return (
+    <StyledHeader>
+      <Logo src="/whitelogo.png" alt="CineNiche" onClick={handleHomeClick} />
+      <NavMenu>
+        <NavItem onClick={handleHomeClick}>Home</NavItem>
+        <NavItem>Movies</NavItem>
+        <NavItem>TV Shows</NavItem>
+        <GenreSelect value={selectedGenre} onChange={handleGenreChange}>
+          <option value="all">Genres</option>
+          {genres.map((genre) => (
+            <option key={genre} value={genre}>
+              {formatGenreName(genre)}
+            </option>
+          ))}
+        </GenreSelect>
+      </NavMenu>
+
+      <IconGroup>
+        {searchOpen && (
+          <SearchInput
+            type="text"
+            placeholder="Search titles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            autoFocus
+          />
+        )}
+        <StyledIcon as={FiSearch} onClick={() => setSearchOpen(!searchOpen)} />
+        <StyledIcon
+          as={FiUser}
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+        />
+        {userMenuOpen && (
+          <UserDropdown ref={userMenuRef}>
+            <Logout>Logout</Logout>
+            {userRole === "Administrator" && <AdminButton>Admin</AdminButton>}
+          </UserDropdown>
+        )}
+      </IconGroup>
+    </StyledHeader>
+  );
 };
 
-
 export default Header;
-
 
 const StyledHeader = styled.header`
   position: fixed;
@@ -151,4 +208,32 @@ const SearchInput = styled.input`
   background-color: black;
   color: white;
   width: 200px;
+`;
+
+const UserDropdown = styled.div`
+  position: absolute;
+  top: 50px;
+  right: 24px;
+  background: rgba(0, 0, 0, 0.75); // 75% opaque black
+  // border: 1px solid #333;
+  border-radius: 3px;
+  // padding: 10px;
+  color: white;
+  z-index: 999;
+  min-width: 120px;
+
+  a.logout,
+  a.admin-button {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+
+    &:hover {
+      background: #222;
+    }
+  }
 `;

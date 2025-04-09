@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import HeaderComponent from "../components/HeaderComponent";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -7,6 +8,15 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const prefillEmail = params.get("email");
+    if (prefillEmail) {
+      setEmail(prefillEmail);
+    }
+  }, [location.search]);
 
   const handleLoginClick = () => {
     navigate("/login");
@@ -46,9 +56,10 @@ function Register() {
       return;
     }
 
-    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/.test(password)) {
+    // Enforce new password requirements (12+ characters, at least 1 uppercase, 1 number)
+    if (!/^(?=.*[A-Z])(?=.*\d).{12,}$/.test(password)) {
       setError(
-        "Password must be at least 6 characters long and include at least 1 uppercase letter, 1 number, and 1 symbol."
+        "Password must be at least 12 characters long, include at least 1 uppercase letter and 1 number."
       );
       return;
     }
@@ -95,73 +106,163 @@ function Register() {
   };
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="card border-0 shadow rounded-3 ">
-          <div className="card-body p-4 p-sm-5">
-            <h5 className="card-title text-center mb-5 fw-light fs-5">
-              Register
-            </h5>
-            <form onSubmit={handleSubmit}>
-              <div className="form-floating mb-3">
-                <input
-                  className="form-control"
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={handleChange}
-                />
-                <label htmlFor="email">Email address</label>
-              </div>
-              <div className="form-floating mb-3">
-                <input
-                  className="form-control"
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                />
-                <label htmlFor="password">Password</label>
-              </div>
-              <div className="form-floating mb-3">
-                <input
-                  className="form-control"
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={handleChange}
-                />
-                <label htmlFor="confirmPassword">Confirm Password</label>
-              </div>
-              <span style={{ color: "red" }}>
-                {error && <p className="error">{error}</p>}
-              </span>
-              <div className="d-grid mb-2">
-                <button
-                  className="btn btn-primary btn-login text-uppercase fw-bold"
-                  type="submit"
-                >
-                  Register
-                </button>
-              </div>
-              <div className="d-grid mb-2">
-                <button
-                  className="btn btn-primary btn-login text-uppercase fw-bold"
-                  type="button"
-                  onClick={handleLoginClick}
-                >
-                  Go to Login
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    <HeaderComponent>
+      <LoginHeroContent>
+        <h1>Create Account</h1>
+        <h2>Join CineNiche today</h2>
+
+        <FormWrapper onSubmit={handleSubmit}>
+          <StyledInput
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={handleChange}
+          />
+          <StyledInput
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={password}
+            onChange={handleChange}
+          />
+          <StyledInput
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={handleChange}
+          />
+
+          {error && <ErrorText>{error}</ErrorText>}
+
+          <OptFormButton type="submit">
+            <span>Register</span>
+            <img src="/icons/chevron-right.png" alt="Register" />
+          </OptFormButton>
+
+          <RegisterText>
+            Already have an account?{" "}
+            <span onClick={handleLoginClick}>Log in</span>
+          </RegisterText>
+        </FormWrapper>
+      </LoginHeroContent>
+    </HeaderComponent>
   );
 }
-
 export default Register;
+
+import styled from "styled-components";
+
+const LoginHeroContent = styled.div`
+  max-width: 400px;
+  margin: 0 auto;
+  color: black;
+  text-align: center;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: normal;
+    margin-bottom: 2rem;
+  }
+`;
+
+const FormWrapper = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 0 20px;
+`;
+
+const StyledInput = styled.input`
+  width: 120%;
+  max-width: 400px;
+  height: 50px;
+  padding: 0 15px;
+  border-radius: 999px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+`;
+
+const CheckboxWrapper = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: black;
+
+  input {
+    accent-color: #fff;
+  }
+`;
+
+const ErrorText = styled.p`
+  color: #ff4d4d;
+  margin: 0;
+  font-size: 14px;
+`;
+
+const RegisterText = styled.p`
+  margin-top: 20px;
+  font-size: 14px;
+  color: black;
+
+  span {
+    color: rgb(98, 98, 98);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+`;
+
+const OptFormButton = styled.button`
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+  height: 60px;
+  background: #000;
+  color: white;
+  padding: 0 32px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+
+  img {
+    margin-left: 10px;
+    filter: brightness(0) invert(1);
+    width: 24px;
+    transition: filter 0.4s ease;
+    position: relative;
+    z-index: 3;
+  }
+
+  span {
+    font-size: 16px;
+    z-index: 3;
+    color: white;
+    transition: color 0.4s ease;
+  }
+
+  &:hover img {
+    filter: none;
+  }
+
+  @media (max-width: 950px) {
+    span {
+      font-size: 14px;
+    }
+  }
+`;
