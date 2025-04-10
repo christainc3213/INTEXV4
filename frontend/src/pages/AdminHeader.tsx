@@ -2,67 +2,83 @@ import styled from "styled-components";
 import { FiSearch, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { MovieType } from "../types/MovieType";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Logout from "../components/Logout";
 
 export interface HeaderProps {
-    allMovies: MovieType[];
-    searchQuery: string;
-    setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-    loadMovies: (size?: number, page?: number) => void;
-    handleShowAddMovieForm: () => void;
-    loading: boolean;
+  allMovies: MovieType[];
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  loadMovies: (size?: number, page?: number) => void;
+  handleShowAddMovieForm: () => void;
+  loading: boolean;
 }
 
 const AdminHeader = ({
-    searchQuery,
-    setSearchQuery,
-    loadMovies,
-    handleShowAddMovieForm,
-  }: HeaderProps) => {
-    const navigate = useNavigate();
-    const [searchOpen, setSearchOpen] = useState(false);
-  
-    const handleSearch = () => {
-      loadMovies(); // ✅ trigger search with current query
-    };
-  
-    return (
-      <StyledHeader>
-        <Logo src="/whitelogo.png" alt="CineNiche" onClick={() => navigate("/browse")} />
-        <NavMenu>
-          <NavItem onClick={() => navigate("/browse")}>Home</NavItem>
-          <NavItem onClick={handleShowAddMovieForm}>Add Movie</NavItem>
-        </NavMenu>
-        <IconGroup>
-          {searchOpen && (
-            <SearchInput
-              type="text"
-              placeholder="Search titles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSearch(); // ✅ ENTER pressed
-                }
-              }}
-              autoFocus={searchOpen}
-            />
-          )}
-          <StyledIcon
-            as={FiSearch}
-            onClick={() => {
-              if (searchOpen) {
-                handleSearch(); // ✅ SEARCH ICON clicked
+  searchQuery,
+  setSearchQuery,
+  loadMovies,
+  handleShowAddMovieForm,
+}: HeaderProps) => {
+  const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = () => {
+    loadMovies(); // ✅ trigger search with current query
+  };
+
+  return (
+    <StyledHeader>
+      <Logo
+        src="/whitelogo.png"
+        alt="CineNiche"
+        onClick={() => navigate("/")}
+      />
+      <NavMenu>
+        <NavItem onClick={() => navigate("/")}>Home</NavItem>
+        <NavItem onClick={handleShowAddMovieForm}>Add Movie</NavItem>
+      </NavMenu>
+      <IconGroup>
+        {searchOpen && (
+          <SearchInput
+            type="text"
+            placeholder="Search titles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSearch(); // ✅ ENTER pressed
               }
-              setSearchOpen(true); // open input if not open
             }}
+            autoFocus={searchOpen}
           />
-          <StyledIcon as={FiUser} />
-        </IconGroup>
-      </StyledHeader>
-    );
-  };  
+        )}
+        <StyledIcon
+          as={FiSearch}
+          onClick={() => {
+            if (searchOpen) {
+              handleSearch(); // ✅ SEARCH ICON clicked
+            }
+            setSearchOpen(true); // open input if not open
+          }}
+        />
+        <StyledIcon
+          as={FiUser}
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+        />
+        {userMenuOpen && (
+          <UserDropdown ref={userMenuRef}>
+            <Logout>Logout</Logout>
+          </UserDropdown>
+        )}{" "}
+      </IconGroup>
+    </StyledHeader>
+  );
+};
 
 export default AdminHeader;
 
@@ -139,3 +155,28 @@ const Spinner = styled.div`
   }
 `;
 
+const UserDropdown = styled.div`
+  position: absolute;
+  top: 50px;
+  right: 24px;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 3px;
+  color: white;
+  z-index: 999;
+  min-width: 120px;
+
+  a.logout,
+  a.admin-button {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+
+    &:hover {
+      background: #222;
+    }
+  }
+`;

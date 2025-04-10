@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using System.IO;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace INTEX_II.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BrowseRecommendationsController : ControllerBase
     {
         private readonly string _connectionString;

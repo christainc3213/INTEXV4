@@ -43,7 +43,7 @@ const MoviePage = () => {
 
     try {
       const res = await fetch(
-        "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings",
+        "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings",
         {
           method: "POST",
           headers: {
@@ -105,7 +105,7 @@ const MoviePage = () => {
     const fetchMovie = async () => {
       try {
         const res = await fetch(
-          "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
+          "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
         );
         const data = await res.json();
 
@@ -135,7 +135,7 @@ const MoviePage = () => {
         const userId = 11;
         if (userId) {
           fetch(
-            `https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings/${userId}/${id}`
+            `https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings/${userId}/${id}`
           )
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {

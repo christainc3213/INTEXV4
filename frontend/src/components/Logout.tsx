@@ -8,7 +8,7 @@ function Logout(props: { children: React.ReactNode }) {
 
     try {
       const response = await fetch(
-        "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/logout",
+        "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/logout",
         {
           method: "POST",
           credentials: "include", // Ensure cookies are sent
@@ -19,7 +19,7 @@ function Logout(props: { children: React.ReactNode }) {
       );
 
       if (response.ok) {
-        navigate("/");
+        navigate("/getStarted");
       } else {
         console.error("Logout failed:", response.status);
       }

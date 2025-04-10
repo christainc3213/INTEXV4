@@ -8,6 +8,7 @@ import FeaturedCarousel from "./BrowseParts/FeaturedCarousel";
 import GenreRows from "./BrowseParts/GenreRows";
 import Spinner from "../components/Spinner"; // adjust if path is different
 import { useLocation } from "react-router-dom";
+import AuthorizeView from "../components/AuthorizeView";
 
 const BrowsePage = () => {
   const [movies, setMovies] = useState<MovieType[]>([]);
@@ -37,7 +38,7 @@ const BrowsePage = () => {
       try {
         const userId = 11;
         const response = await fetch(
-          `https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`
+          `https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`
         );
         const titles: string[] = await response.json();
 
@@ -61,7 +62,7 @@ const BrowsePage = () => {
       try {
         const userId = 11;
         const res = await fetch(
-          `https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`
+          `https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`
         );
         const titles: string[] = await res.json();
 
@@ -122,7 +123,7 @@ const BrowsePage = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
+          "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
         );
         const rawData = await response.json();
 
@@ -237,35 +238,37 @@ const BrowsePage = () => {
 
   return (
     <>
-      <Header
-        selectedGenre={selectedGenre}
-        setSelectedGenre={setSelectedGenre}
-        allMovies={movies}
-        genres={genres}
-        formatGenreName={formatGenreName}
-      />
+      <AuthorizeView>
+        <Header
+          selectedGenre={selectedGenre}
+          setSelectedGenre={setSelectedGenre}
+          allMovies={movies}
+          genres={genres}
+          formatGenreName={formatGenreName}
+        />
 
-      <FeaturedCarousel
-        movies={filteredMovies}
-        selectedGenre={selectedGenre}
-        featuredMovies={featuredMovies}
-        currentSlide={currentSlide}
-        setCurrentSlide={setCurrentSlide}
-        getPosterPath={getPosterPath}
-      />
+        <FeaturedCarousel
+          movies={filteredMovies}
+          selectedGenre={selectedGenre}
+          featuredMovies={featuredMovies}
+          currentSlide={currentSlide}
+          setCurrentSlide={setCurrentSlide}
+          getPosterPath={getPosterPath}
+        />
 
-      <GenreRows
-        moviesByGenre={moviesByGenre}
-        selectedGenre={selectedGenre}
-        recommendedMovies={recommendedMovies}
-        formatGenreName={formatGenreName}
-        getPosterPath={getPosterPath}
-        visibleGenres={visibleGenres}
-        filteredMovies={filteredMovies}
-        actionRecs={actionRecommendations}
-        comedyRecs={comedyRecommendations}
-        dramaRecs={dramaRecommendations}
-      />
+        <GenreRows
+          moviesByGenre={moviesByGenre}
+          selectedGenre={selectedGenre}
+          recommendedMovies={recommendedMovies}
+          formatGenreName={formatGenreName}
+          getPosterPath={getPosterPath}
+          visibleGenres={visibleGenres}
+          filteredMovies={filteredMovies}
+          actionRecs={actionRecommendations}
+          comedyRecs={comedyRecommendations}
+          dramaRecs={dramaRecommendations}
+        />
+      </AuthorizeView>
     </>
   );
 };

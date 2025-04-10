@@ -7,7 +7,7 @@ interface fetchMoviesResponse {
 }
 
 const API_URL =
-  "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net//MainDb";
+  "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net//MainDb";
 
 export const fetchMovies = async (
   pageSize = 10,

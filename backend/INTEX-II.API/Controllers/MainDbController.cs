@@ -2,11 +2,13 @@
 using INTEX_II.API.Data;
 using INTEX_II.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INTEX_II.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class MainDbController : ControllerBase
     {
         private readonly MainDbContext _mainDbContext;

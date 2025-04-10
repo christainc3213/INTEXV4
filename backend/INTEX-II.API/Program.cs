@@ -114,6 +114,6 @@ app.MapGet("/pingauth", (HttpContext context, ClaimsPrincipal user) =>
     Console.WriteLine($"Authenticated User Email: {email}");
 
     return Results.Json(new { email = email });
-});
+}).RequireAuthorization();
 
 app.Run();

@@ -18,7 +18,7 @@ const SearchResults = () => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
+          "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles"
         );
         const rawData = await res.json();
 

@@ -39,8 +39,8 @@ function LoginPage() {
     }
 
     const loginUrl = rememberme
-      ? "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useCookies=true"
-      : "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useSessionCookies=true";
+      ? "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useCookies=true"
+      : "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useSessionCookies=true";
 
     try {
       const response = await fetch(loginUrl, {
@@ -61,7 +61,7 @@ function LoginPage() {
         throw new Error(data?.message || "Invalid email or password.");
       }
 
-      navigate("/browse");
+      navigate("/");
     } catch (error: any) {
       setError(error.message || "Error logging in.");
       console.error("Fetch attempt failed:", error);

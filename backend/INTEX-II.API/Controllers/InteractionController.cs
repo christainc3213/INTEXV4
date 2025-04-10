@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INTEX_II.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "Administrator")]
+
     public class InteractionController : ControllerBase
     {
         public class InteractionEvent

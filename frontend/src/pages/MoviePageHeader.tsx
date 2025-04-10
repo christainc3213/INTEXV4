@@ -32,7 +32,7 @@ const MovieHeader = ({
     const fetchUserInfo = async () => {
       try {
         const response = await fetch(
-          "https://https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/user/info",
+          "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/user/info",
           {
             method: "GET",
             credentials: "include",
@@ -74,7 +74,7 @@ const MovieHeader = ({
   }, []);
 
   const handleHomeClick = () => {
-    navigate("/browse");
+    navigate("/");
     setTimeout(() => setSelectedGenre("all"), 0);
   };
 
@@ -86,7 +86,7 @@ const MovieHeader = ({
       <NavMenu>
         <NavItem
           $active={
-            location.pathname === "/browse" &&
+            location.pathname === "/" &&
             !location.search.includes("type=") &&
             selectedGenre === "all"
           }
@@ -97,14 +97,14 @@ const MovieHeader = ({
 
         <NavItem
           $active={location.search.includes("type=Movies")}
-          onClick={() => navigate("/browse?type=Movies")}
+          onClick={() => navigate("/?type=Movies")}
         >
           Movies
         </NavItem>
 
         <NavItem
           $active={location.search.includes("type=TV-Shows")}
-          onClick={() => navigate("/browse?type=TV-Shows")}
+          onClick={() => navigate("/?type=TV-Shows")}
         >
           TV Shows
         </NavItem>

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INTEX_II.API.Controllers
 {
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DetailsRecommendationController : ControllerBase
     {
         private readonly IConfiguration _config;
