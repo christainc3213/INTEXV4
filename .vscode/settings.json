@@ -1,4 +1,0 @@
-{
-  "appService.defaultWebAppToDeploy": "undefined/subscriptions/0b27eb94-536a-48b7-a5ec-32b0edf420a1/resourceGroups/appsvc_windows_eastus/providers/Microsoft.Web/sites/Cineniche-3-9",
-  "appService.deploySubpath": "backend\\INTEX-II.API\\publish"
-}
