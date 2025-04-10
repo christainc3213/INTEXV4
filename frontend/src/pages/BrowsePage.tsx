@@ -32,7 +32,7 @@ const BrowsePage = () => {
         const fetchRecommendations = async () => {
             try {
                 const userId = 11;
-                const response = await fetch(`https://localhost:5001/api/BrowseRecommendations/${userId}`);
+                const response = await fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`);
                 const titles: string[] = await response.json();
 
                 const matches = movies.filter((movie) =>
@@ -48,7 +48,7 @@ const BrowsePage = () => {
         const fetchGenreRecs = async (genre: string, setter: (movies: MovieType[]) => void) => {
             try {
                 const userId = 11;
-                const res = await fetch(`https://localhost:5001/api/BrowseRecommendations/genre/${genre}/${userId}`);
+                const res = await fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`);
                 const titles: string[] = await res.json();
 
                 const matches = movies.filter((movie) =>
@@ -115,7 +115,7 @@ const BrowsePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("https://localhost:5001/MovieTitles");
+                const response = await fetch("https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/movietitles");
                 const rawData = await response.json();
 
                 const genreKeys = [
