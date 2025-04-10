@@ -17,7 +17,6 @@ const BrowsePage = () => {
     const [genres, setGenres] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedGenre, setSelectedGenre] = useState("all");
-    const [visibleGenres, setVisibleGenres] = useState(3);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
     const navigate = useNavigate();
@@ -26,8 +25,7 @@ const BrowsePage = () => {
     const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
     const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
     const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
-
-    console.log("Visible genre rows:", visibleGenres);
+    
 
 
     useEffect(() => {
@@ -101,11 +99,6 @@ const BrowsePage = () => {
             const fullHeight = document.documentElement.scrollHeight;
 
             const nearBottom = scrollTop + viewportHeight >= fullHeight - 300;
-
-            if (nearBottom && selectedGenre === "all") {
-                console.log("📦 Near bottom, loading more genres...");
-                setVisibleGenres((prev) => prev + 2);
-            }
 
             console.log("🧮 scrollY:", window.scrollY);
             console.log("📏 viewport height:", window.innerHeight);
@@ -216,6 +209,8 @@ const BrowsePage = () => {
 
     if (selectedGenre === "all" && contentType === "all") {
         firstFeaturedId = "s341"; // Home page
+    } else if (contentType === "Movie") {
+        firstFeaturedId = "s330"; // Example for Movies page
     } else if (contentType === "TV Show") {
         firstFeaturedId = "s100"; // Example for TV Shows page
     } else if (selectedGenre === "action") {
@@ -272,7 +267,6 @@ const BrowsePage = () => {
                 recommendedMovies={recommendedMovies}
                 formatGenreName={formatGenreName}
                 getPosterPath={getPosterPath}
-                visibleGenres={visibleGenres}
                 filteredMovies={filteredMovies}
                 actionRecs={actionRecommendations}
                 comedyRecs={comedyRecommendations}

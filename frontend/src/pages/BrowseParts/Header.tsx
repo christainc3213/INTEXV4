@@ -27,6 +27,17 @@ const Header = ({
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
 
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const openDropdown   = () => setDropdownOpen(true);
+    const closeDropdown  = () => setDropdownOpen(false);
+    const toggleDropdown = () => setDropdownOpen(o => !o);
+
+    const handleGenreSelect = (genre: string) => {
+        setDropdownOpen(false);
+        window.location.href = `/browse?genre=${genre}`;
+    };
+    
     const userMenuRef = useRef<HTMLDivElement>(null);
     const userMenuWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -129,18 +140,26 @@ const Header = ({
                     TV Shows
                 </NavItem>
 
-                <GenreSelect
-                    value={selectedGenre}
-                    onChange={handleGenreChange}
-                    $active={isGenreSelected()}
-                >
-                    <option value="all">Genres</option>
-                    {genres.map((genre) => (
-                        <option key={genre} value={genre}>
-                            {formatGenreName(genre)}
-                        </option>
-                    ))}
-                </GenreSelect>
+                <GenreDropdownWrapper onMouseEnter={openDropdown}
+                                      onMouseLeave={closeDropdown}>
+                    <GenreDisplay $active={isGenreSelected()} onClick={() => setDropdownOpen((prev) => !prev)}>
+                        {selectedGenre === "all" ? "All Genres" : formatGenreName(selectedGenre)}
+                        <Underline $active={isGenreSelected()} />
+                    </GenreDisplay>
+
+                    
+                        <DropdownMenu $open={dropdownOpen}>
+                            <GenreGrid>
+                                {genres.map((genre) => (
+                                    <DropdownItem key={genre} onClick={() => handleGenreSelect(genre)}>
+                                        {formatGenreName(genre)}
+                                    </DropdownItem>
+                                ))}
+                            </GenreGrid>
+                        </DropdownMenu>
+                    
+                </GenreDropdownWrapper>
+
             </NavMenu>
 
             <IconWrapper>
@@ -201,42 +220,45 @@ const NavMenu = styled.nav`
 `;
 
 const NavItem = styled.div<{ $active?: boolean }>`
-  color: ${({ $active }) => ($active ? "white" : "gray")};
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 0.2s;
-`;
-
-const GenreSelect = styled.select<{ $active?: boolean }>`
-  background: transparent;
-  border: none;
-  color: ${({ $active }) => ($active ? "white" : "gray")};
-  font-size: 1.125rem;
-  font-weight: 600;
-  appearance: none;
-  cursor: pointer;
-  padding: 4px 8px;
-
-  option {
-    background: #000;
+    position: relative;
     color: white;
-  }
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding-bottom: 4px;
+
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: ${({ $active }) => ($active ? "100%" : "0")};
+        height: 2px;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+        width: 100%;
+    }
 `;
+
+
 
 const IconWrapper = styled.div`
     display: flex;
     align-items: center;
-    gap: 16px;
     justify-content: flex-end;
-    position: relative;
-    min-width: 240px;
+    gap: 16px;
+    width: 280px; /* Lock width to reserve space */
     flex-shrink: 0;
+    position: relative;
 
     > * {
         flex-shrink: 0;
     }
 `;
+
 
 const LogoWrapper = styled.div`
   width: 340px;
@@ -301,4 +323,70 @@ const UserDropdown = styled.div`
       background: #222;
     }
   }
+`;
+
+
+const GenreDropdownWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const GenreDisplay = styled.div<{ $active?: boolean }>`
+  position: relative;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  padding: 4px 0;
+  display: inline-flex;
+  align-items: center;
+`;
+
+const Underline = styled.div<{ $active?: boolean }>`
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  background-color: white;
+  width: ${({ $active }) => ($active ? "100%" : "0")};
+  transition: width 0.3s ease;
+`;
+
+const DropdownMenu = styled.div<{ $open: boolean }>`
+position:absolute;
+top:100%;
+   left:50%;
+   transform:translate(-50%, ${({ $open }) => ($open ? "0" : "-8px")});
+  opacity:${({ $open }) => ($open ? 1 : 0)};
+  transition:opacity .75s ease, transform .25s ease;
+  background:#0a0d12;
+  border-radius:8px;
+   padding:${({ $open }) => ($open ? "1rem" : "0 1rem")};
+   width:600px;max-width:90vw;
+   box-shadow:0 4px 12px rgba(0,0,0,.5);
+   pointer-events:${({ $open }) => ($open ? "auto" : "none")};
+   z-index:999;overflow:hidden;
+ `;
+
+
+
+const DropdownItem = styled.div`
+    padding: 0.5rem;
+    font-size: 1rem;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: #222;
+    }
+`;
+
+
+const GenreGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* or however many columns you want */
+    gap: 0.5rem 2rem;
 `;
