@@ -93,6 +93,7 @@ const EmailInput = styled.input`
   border-radius: 999px;
   outline: none;
   margin-bottom: 10px;
+  margin-right: 15px;
 
   &::placeholder {
     color: #999;
