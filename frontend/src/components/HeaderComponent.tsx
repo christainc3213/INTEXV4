@@ -3,68 +3,80 @@ import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 
 interface HeaderComponentProps {
-  showSigninButton?: boolean;
-  showPlayButton?: boolean;
-  movieSlug?: string;
-  children?: ReactNode;
+    showSigninButton?: boolean;
+    showPlayButton?: boolean;
+    movieSlug?: string;
+    /** pass a .mp4 OR a .png (omit for no background) */
+    backgroundSrc?: string;
+    showWhiteFilm?: boolean;  // ⬅️ new prop
+    children?: React.ReactNode;
 }
 
 /*---> Main Component <---*/
 const HeaderComponent = ({
-  showSigninButton = false,
-  showPlayButton = false,
-  movieSlug,
-  children,
-}: HeaderComponentProps) => {
-  const navigate = useNavigate();
+                             showSigninButton = false,
+                             showPlayButton = false,
+                             movieSlug,
+                             backgroundSrc = "/whiteback.mp4",
+                             showWhiteFilm = false,
+                             children,
+                         }: HeaderComponentProps) => {
+    const navigate = useNavigate();
+    const isVideo = backgroundSrc.endsWith(".mp4");
 
-  return (
-    <HeaderWrapper>
-      <TopNav>
-        <Logo onClick={() => navigate("/")} />
-        {showSigninButton && (
-          <SigninButton onClick={() => navigate("/login")}>
-            Sign In
-          </SigninButton>
-        )}
-      </TopNav>
+    return (
+        <HeaderWrapper>
+            {isVideo ? (
+                <VideoBg autoPlay muted loop playsInline>
+                    <source src={backgroundSrc} type="video/mp4" />
+                </VideoBg>
+            ) : (
+                <ImageBg style={{ backgroundImage: `url(${backgroundSrc})` }} />
+            )}
 
-      <Content>{children}</Content>
+            {showWhiteFilm && <WhiteFilm />}
 
-      {showPlayButton && (
-        <PlayButton onClick={() => navigate(`/movie/${movieSlug}`)}>
-          Play
-        </PlayButton>
-      )}
-    </HeaderWrapper>
-  );
+            <TopNav>
+                <Logo onClick={() => navigate("/")} />
+                {showSigninButton && (
+                    <SigninButton onClick={() => navigate("/login")}>Sign In</SigninButton>
+                )}
+            </TopNav>
+
+            <Content>{children}</Content>
+
+            {showPlayButton && (
+                <PlayButton onClick={() => navigate(`/movie/${movieSlug}`)}>Play</PlayButton>
+            )}
+        </HeaderWrapper>
+    );
 };
+
+
 
 export default HeaderComponent;
 
-const HeaderWrapper = styled.div`
-  background: url("/bigback.png");
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 
-  width: 100%;
-  height: 100vh;
+const VideoBackground = styled.video`
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  box-sizing: border-box;
+    z-index: 0;            /* ⬅ put it in the normal stacking context */
+    pointer-events: none;
+    background: #000;      /* fallback */
 `;
 
+
 const TopNav = styled.div`
-  display: flex;
+    z-index: 2;
+    display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30px 50px; /* 👈 Padding inside, not outside */
+  padding: 30px 50px;
+    
 
   @media (max-width: 550px) {
     padding: 20px;
@@ -72,6 +84,7 @@ const TopNav = styled.div`
 `;
 
 const Content = styled.div`
+    z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -87,6 +100,7 @@ const Content = styled.div`
 `;
 
 const Navbar = styled.nav`
+    z-index: 2;
   max-width: 1850px;
   width: 100%;
   display: flex;
@@ -112,17 +126,17 @@ const Logo = styled.img.attrs({
 
 const SigninButton = styled.div`
   display: flex;
-  align-items: center; /* ✅ vertical centering */
-  justify-content: center; /* ✅ horizontal centering */
+  align-items: center;
+  justify-content: center;
 
   background-color: #000000;
   color: #ffffff;
-  font-size: 14px; /* ✅ smaller text */
+  font-size: 14px;
   font-weight: 600;
   border-radius: 10px;
 
-  padding: 8px 16px; /* ✅ less padding = smaller button */
-  width: auto; /* ✅ shrink-wrap to content */
+  padding: 8px 16px;
+  width: auto;
   height: auto;
   cursor: pointer;
 
@@ -153,5 +167,61 @@ const PlayButton = styled.button`
   &:hover {
     background: #ff1e1e;
     color: white;
+  }
+`;
+
+const WhiteFilm = styled.div`
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75);
+    z-index: 1;
+    pointer-events: none;
+`;
+
+
+const HeaderWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const VideoBg = styled.video`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+`;
+
+const ImageBg = styled.div`
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+`;
+/* … TopNav, Content, etc. all with z‑index:1 … */
+
+
+const FormWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 70px;
+  padding: 0 20px;
+  gap: 1rem; /* 👈 adds space between input + button */
+
+  @media (max-width: 950px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
   }
 `;

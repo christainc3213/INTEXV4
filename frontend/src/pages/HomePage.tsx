@@ -16,11 +16,11 @@ const HomePage = () => {
   };
 
   return (
-    <HeaderComponent showSigninButton>
+      <HeaderComponent showWhiteFilm={true} showSigninButton = {true}>
       <HeroContent>
         <h1>Independent Films. Cult Classics. All in one place.</h1>
         <h2>
-          Ready to watch? Enter your email to create or restart your membership.
+          Ready to watch? Enter your email below to start your membership.
         </h2>
         <FormWrapper>
           <EmailInput
@@ -73,6 +73,8 @@ const HeroContent = styled.div`
 const FormWrapper = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 1rem; /* 👈 adds spacing between email and button */
   margin-top: 20px;
   margin-bottom: 70px;
   padding: 0 20px;
@@ -80,6 +82,7 @@ const FormWrapper = styled.div`
   @media (max-width: 950px) {
     flex-direction: column;
     align-items: center;
+    gap: 0.5rem;
   }
 `;
 
@@ -92,8 +95,8 @@ const EmailInput = styled.input`
   font-size: 20px;
   border-radius: 999px;
   outline: none;
-  margin-bottom: 10px;
-  margin-right: 15px;
+  vertical-align: middle;
+
 
   &::placeholder {
     color: #999;

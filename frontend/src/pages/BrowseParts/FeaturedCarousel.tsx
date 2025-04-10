@@ -143,14 +143,17 @@ const Overlay = styled.div`
   z-index: 2;
 
   h2 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
   }
 
   p {
-    max-width: 400px;
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
+    max-width: 500px;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
   }
 
   button {

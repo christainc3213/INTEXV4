@@ -25,17 +25,27 @@ const MoviePage = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    // stop automatic restoration (some browsers still restore once)
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
     }
 
-    // first attempt – before paint
-    window.scrollTo(0, 0);
+    // Scroll now
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-    // second attempt – right after paint, guarantees top
-    requestAnimationFrame(() => window.scrollTo(0, 0));
+    // Scroll again after paint (some browsers only listen then)
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }, 1); // tiny delay helps override browser restoration
+    });
+
+    return () => {
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "auto";
+      }
+    };
   }, []);
+
 
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
