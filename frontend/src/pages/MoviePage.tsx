@@ -324,7 +324,8 @@ const MoviePage = () => {
         {renderRecs("More Action For You", actionRecs)}
         {renderRecs("More Comedy For You", comedyRecs)}
         {renderRecs("More Drama For you", dramaRecs)}
-        
+
+        <RatingTag>{movie.rating}</RatingTag>
       </Overlay>
     </Background>
   );
