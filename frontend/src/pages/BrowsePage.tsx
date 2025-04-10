@@ -212,11 +212,11 @@ const BrowsePage = () => {
     } else if (contentType === "Movie") {
         firstFeaturedId = "s330"; // Example for Movies page
     } else if (contentType === "TV Show") {
-        firstFeaturedId = "s100"; // Example for TV Shows page
+        firstFeaturedId = "s6"; // Example for TV Shows page
     } else if (selectedGenre === "action") {
         firstFeaturedId = "s609"; // Example for Action genre
     } else if (selectedGenre === "comedies") {
-        firstFeaturedId = "s300"; // Example for Comedies
+        firstFeaturedId = "s28"; // Example for Comedies
     } else if (selectedGenre === "dramas") {
         firstFeaturedId = "s829"; // Example for Dramas
     }

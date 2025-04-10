@@ -14,6 +14,7 @@ export interface HeaderProps {
     allMovies: MovieType[];
 }
 
+
 const Header = ({
                     selectedGenre,
                     setSelectedGenre,
@@ -26,6 +27,7 @@ const Header = ({
     const [searchQuery, setSearchQuery] = useState("");
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
+    
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -301,9 +303,9 @@ const SearchInput = styled.input<{ $visible: boolean }>`
 
 const UserDropdown = styled.div`
   position: absolute;
-  top: 50px;
-  right: 24px;
-  background: rgba(0, 0, 0, 0.75);
+  top: 40px;
+  right: 0px;
+  background: rgba(0, 0, 0, 0.85);
   border-radius: 3px;
   color: white;
   z-index: 999;

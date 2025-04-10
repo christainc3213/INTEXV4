@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Spinner from "../components/Spinner";
-import MovieHeader from "../pages/MoviePageHeader";
+import Header from "../pages/BrowseParts/Header";
+import {MovieType} from "../types/MovieType"; // adjust path if needed
+
 
 interface Movie {
   show_id: string;
@@ -22,6 +24,19 @@ const MoviePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
+  useLayoutEffect(() => {
+    // stop automatic restoration (some browsers still restore once)
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // first attempt – before paint
+    window.scrollTo(0, 0);
+
+    // second attempt – right after paint, guarantees top
+    requestAnimationFrame(() => window.scrollTo(0, 0));
+  }, []);
+
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRating, setUserRating] = useState<number | null>(null);
@@ -34,6 +49,13 @@ const MoviePage = () => {
   const [actionRecs, setActionRecs] = useState<string[]>([]);
   const [comedyRecs, setComedyRecs] = useState<string[]>([]);
   const [dramaRecs, setDramaRecs] = useState<string[]>([]);
+
+  const [results, setResults] = useState<MovieType[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState("all");
+  const [genres, setGenres] = useState<string[]>([]);
+
+  const formatGenreName = (key: string): string =>
+      key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
   const handleStarClick = async (rating: number) => {
     if (!movie) return;
@@ -106,17 +128,34 @@ const MoviePage = () => {
         const res = await fetch("https://localhost:5001/MovieTitles");
         const data = await res.json();
 
-        const moviesWithSlugs: Movie[] = data.map((movie: any) => {
-          const genre = Object.entries(movie).find(
-            ([key, val]) => val === 1 && genreFields.includes(key)
-          )?.[0] ?? "unknown";
+        const genreKeys = [
+          "action", "adventure", "anime_int_tv", "british_int_tv", "children", "comedies",
+          "comedy_drama_int", "comedy_int", "comedy_romance", "crime_tv", "documentaries",
+          "documentary_int", "docuseries", "dramas", "drama_int", "drama_romance", "family",
+          "fantasy", "horror", "thriller_int", "drama_romance_int_tv", "kids_tv", "language_tv",
+          "musicals", "nature_tv", "reality_tv", "spirituality", "action_tv", "comedy_tv",
+          "drama_tv", "talk_show_comedy_tv", "thrillers"
+        ];
 
+        const extractFirstGenre = (item: any): string => {
+          for (const key of genreKeys) {
+            if (item[key] === 1) return key;
+          }
+          return "Other";
+        };
+
+        const moviesWithSlugs: Movie[] = data.map((item: any) => {
+          const genre = extractFirstGenre(item);
           return {
-            ...movie,
-            slug: slugify(movie.title),
+            ...item,
+            slug: slugify(item.title),
             genre,
           };
         });
+
+        setResults(moviesWithSlugs as MovieType[]);
+        setGenres(Array.from(new Set(moviesWithSlugs.map((m) => m.genre))).sort());
+
 
         const matched = moviesWithSlugs.find((m) => m.slug === slug);
         if (!matched) {
@@ -126,6 +165,7 @@ const MoviePage = () => {
         }
 
         setMovie(matched);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         const id = matched.show_id;
 
         const userId = 11;
@@ -217,14 +257,16 @@ const MoviePage = () => {
       </RecommendationSection>
     )
   );
+  
 
   return (
     <Background $posterUrl={`"${posterUrl}"`}>
-      <MovieHeader selectedGenre={""} setSelectedGenre={function (genre: string): void {
-        throw new Error("Function not implemented.");
-      } } genres={[]} formatGenreName={function (genre: string): string {
-        throw new Error("Function not implemented.");
-      } } allMovies={[]}      
+      <Header
+          selectedGenre={selectedGenre}
+          setSelectedGenre={setSelectedGenre}
+          allMovies={results}
+          genres={genres}
+          formatGenreName={formatGenreName}
       />
       <Overlay>
         <img
@@ -243,6 +285,15 @@ const MoviePage = () => {
 
         <InfoSection>
           <Title>{movie.title}</Title>
+          <MetaCompact>
+            <span>{movie.rating}</span>
+            <span>{movie.duration}</span>
+            <span>{movie.release_year}</span>
+          </MetaCompact>
+          <WatchNowButton>
+            <PlayIcon /> Watch Now
+          </WatchNowButton>
+
           <Description>{movie.description}</Description>
           <Metadata>
             <MetaItem><strong>Release Year:</strong> {movie.release_year}</MetaItem>
@@ -313,12 +364,13 @@ const Overlay = styled.div`
   background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent 60%);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 6rem;
+  justify-content: flex-start;   /* ⬅ content starts at the top */
+  padding: 6rem 2rem 6rem 2rem;
   box-sizing: border-box;
   color: white;
   min-height: 100vh;
 `;
+
 
 const InfoSection = styled.div`
   max-width: 700px;
@@ -333,6 +385,7 @@ const Description = styled.p`
   font-size: 1.25rem;
   line-height: 1.5;
   margin-bottom: 1.5rem;
+  margin-top: 1.25rem;
 `;
 
 const Metadata = styled.div`
@@ -471,3 +524,45 @@ const MovieOverlay = styled.div`
     }
   }
 `;
+
+
+const MetaCompact = styled.div`
+  display: flex;
+  gap: 1rem;
+  color: #ccc;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+`;
+
+const WatchNowButton = styled.button`
+  background-color: #e5e5e5;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: #d6d6d6;
+    transform: translateY(-1px);
+  }
+`;
+
+const PlayIcon = styled.span`
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 8px solid black;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+`;
+
+
+
+

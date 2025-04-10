@@ -10,20 +10,24 @@ import AdminPage from "./pages/AdminPage";
 import SearchResults from "./pages/SearchResults";
 import "bootstrap/dist/css/bootstrap.min.css";
 import FooterComponent from "./components/FooterComponent";
-import CookieBanner from "./components/CookieBanner";
+import ScrollToTop from "./components/ScrollToTop";
+
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
 
 /*---> Component <---*/
 const App: React.FC = () => {
   return (
     <>
-      <CookieBanner />
       <Router>
+        <ScrollToTop />
         <Routes>
-          <Route path="/" element={<BrowsePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/getStarted" element={<HomePage />} />
+          <Route path="/browse" element={<BrowsePage />} />
           <Route path="/movie/:slug" element={<MoviePage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/search" element={<SearchResults />} />

@@ -3,6 +3,8 @@ import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MovieType } from "../types/MovieType";
+import PosterCard from "./PosterCard";
+
 
 /** How many posters we show immediately, and how many more to add each time user scrolls. */
 const INITIAL_POSTERS = 20;
@@ -71,22 +73,12 @@ const MovieScrollRow: React.FC<Props> = ({ title, movies, getPosterPath }) => {
 
                 <ScrollRow ref={scrollRef}>
                     {movies.slice(0, visibleCount).map((movie) => (
-                        <MovieCard key={movie.docId}>
-                            <MoviePoster
-                                src={getPosterPath(movie.title)}
-                                alt={movie.title}
-                                onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
-                                }}
-                            />
-                            <MovieOverlay className="overlay">
-                                <h4>{movie.title}</h4>
-                                <button onClick={() => navigate(`/movie/${movie.slug}`)}>
-                                    Go to Movie
-                                </button>
-                            </MovieOverlay>
-                        </MovieCard>
-                    ))}
+                           <PosterCard
+                             key={movie.docId}
+                             movie={movie}
+                             posterSrc={getPosterPath(movie.title)}
+                           />
+                         ))}
 
                     {/* The invisible block that triggers loading more posters when we scroll near the right edge. */}
                     <EndSentinel ref={endRef} />

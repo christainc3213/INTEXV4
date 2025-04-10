@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MovieType } from '../types/MovieType';
 import { handleAddMovie, handleEditMovie, deleteMovie, fetchMovies } from '../api/moviesAPI';
@@ -18,7 +17,6 @@ const AdminPage = () => {
     const [showForm, setShowForm] = useState<boolean>(false);
     const [editingMovie, setEditingMovie] = useState<MovieType | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-
 
     const loadMovies = async (size = pageSize, page = currentPage, search = searchQuery) => {
         try {
@@ -68,13 +66,13 @@ const AdminPage = () => {
 
     const getPosterPath = (title: string): string => {
         return `/Movie Posters/${title
-            .replace(/[^\w\s]/g, "")   // remove non-word characters like &, :, /
+            .replace(/[^\w\s]/g, "")
             .trim()}.jpg`;
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1); // ✅ Important: reset to page 1 on new search
+        setCurrentPage(1);
     };
 
     useEffect(() => {
@@ -91,18 +89,15 @@ const AdminPage = () => {
     }
 
     return (
-        <div style={{ backgroundColor: '#141414', color: '#fff' }}>
+        <AdminContainer>
             <AdminHeader
                 allMovies={movies}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                loadMovies={loadMovies} // ✅ used when Enter or search icon is clicked
+                loadMovies={loadMovies}
                 handleShowAddMovieForm={handleShowAddMovieForm}
-                loading={loading} // ✅ Added missing prop
+                loading={loading}
             />
-            <div style={{ padding: '2rem 4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            </div>
-            {/* New movie form */}
             {showForm && (
                 <NewMovieForm
                     onSuccess={() => {
@@ -112,7 +107,6 @@ const AdminPage = () => {
                     onCancel={() => setShowForm(false)}
                 />
             )}
-            {/* Edit movie form */}
             {editingMovie && (
                 <EditMovieForm
                     movie={editingMovie}
@@ -123,7 +117,6 @@ const AdminPage = () => {
                     onCancel={() => setEditingMovie(null)}
                 />
             )}
-            {/* Movie list */}
             <div style={{ padding: '1rem 4rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <label>
@@ -194,11 +187,17 @@ const AdminPage = () => {
                     onPageChange={handlePageChange}
                 />
             </div>
-        </div>
+        </AdminContainer>
     );
 };
 
 export default AdminPage;
+
+const AdminContainer = styled.div`
+    background-color: #141414;
+    color: #fff;
+    padding-top: 5rem;
+`;
 
 const GenreRow = styled.div`
     margin-top: 3rem;
@@ -212,8 +211,8 @@ const GenreTitle = styled.h3`
 
 const ScrollRow = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.855rem;
 `;
 
 const MovieCard = styled.div`
@@ -301,7 +300,7 @@ const StyledIcon = styled.div`
 const SearchInput = styled.input`
     padding: 6px 12px;
     font-size: 1rem;
-    border: 1px solid white;
+    border: none;
     border-radius: 4px;
     margin-right: 12px;
     background-color: black;

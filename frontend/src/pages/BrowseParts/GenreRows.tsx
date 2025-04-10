@@ -1,7 +1,9 @@
 import styled from "styled-components";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useLayoutEffect, useEffect, useRef, useState } from "react";
 import MovieScrollRow from "../../components/MovieScrollRow";
 import { MovieType } from "../../types/MovieType";
+import PosterCard from "../../components/PosterCard";
+
 
 export interface GenreRowsProps {
     moviesByGenre: Record<string, MovieType[]>;
@@ -65,6 +67,10 @@ export default function GenreRows(props: GenreRowsProps) {
         return () => io.disconnect();
     }, []);
 
+    useLayoutEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     /* --------------- render ----------------- */
     return (
         <PageBackground>
@@ -110,19 +116,14 @@ export default function GenreRows(props: GenreRowsProps) {
                     <GenreRow>
                         <GenreTitle>{`All ${formatGenreName(selectedGenre)}`}</GenreTitle>
                         <Grid>
-                            {filteredMovies.slice(0, visibleMovieCount).map(movie => (
-                                <Poster
-                                    key={movie.docId}
-                                    src={getPosterPath(movie.title)}
-                                    alt={movie.title}
-                                    loading="lazy"
-                                    onError={e =>
-                                        ((e.currentTarget as HTMLImageElement).src =
-                                            "/Movie Posters/fallback.jpg")
-                                    }
-                                />
-                            ))}
-                        </Grid>
+                               {filteredMovies.slice(0, visibleMovieCount).map(movie => (
+                                 <PosterCard
+                                   key={movie.docId}
+                                   movie={movie}
+                                   posterSrc={getPosterPath(movie.title)}
+                                 />
+                               ))}
+                             </Grid>
                         {/* sentinel for more posters */}
                         <Sentinel ref={movieSentinelRef} />
                     </GenreRow>
@@ -146,7 +147,7 @@ const GenreTitle = styled.h3`color:#fff;margin-bottom:1rem;`;
 const Grid = styled.div`
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-    gap:1rem;
+    gap:0.5rem;
 `;
 
 const Poster = styled.img`
@@ -157,3 +158,26 @@ const Sentinel = styled.div`
     width:100%;height:1px;
 `;
 
+const PosterImg = styled.img`
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+`;
+
+const Info = styled.div`
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1rem;
+    transition: opacity .25s ease;
+
+
+    h4 { margin: 0 0 .25rem 0; font-size: 1rem; }
+    p  { margin: 0; font-size: .85rem; line-height: 1.2; }
+`;
