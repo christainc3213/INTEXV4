@@ -7,7 +7,7 @@ interface fetchMoviesResponse {
 }
 
 const API_URL =
-    "https://localhost:5001/MainDb";
+    "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/";
 
     export const fetchMovies = async (pageSize = 10, pageNumber = 1, searchTerm = '') => {
         const query = new URLSearchParams({
