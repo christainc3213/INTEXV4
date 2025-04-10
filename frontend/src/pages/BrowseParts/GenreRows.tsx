@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { MovieType } from "../../types/MovieType";
 import MovieScrollRow from "../../components/MovieScrollRow";
 
@@ -8,7 +9,6 @@ export interface GenreRowsProps {
     recommendedMovies: MovieType[];
     formatGenreName: (genre: string) => string;
     getPosterPath: (title: string) => string;
-    visibleGenres: number;
     filteredMovies: MovieType[];
     actionRecs: MovieType[];
     comedyRecs: MovieType[];
@@ -21,34 +21,91 @@ const GenreRows = ({
                        recommendedMovies,
                        formatGenreName,
                        getPosterPath,
-                       visibleGenres,
                        filteredMovies,
                        actionRecs,
                        comedyRecs,
-                       dramaRecs
+                       dramaRecs,
                    }: GenreRowsProps) => {
+    const [visibleGenreCount, setVisibleGenreCount] = useState(3);
+    const [visibleMovieCount, setVisibleMovieCount] = useState(30);
+    const genreObserverRef = useRef<HTMLDivElement | null>(null);
+    const movieObserverRef = useRef<HTMLDivElement | null>(null);
+    const genreLoaderRef = useRef<HTMLDivElement | null>(null);
+    const movieLoaderRef = useRef<HTMLDivElement | null>(null);
+
+    const movieObserver = useCallback((node: HTMLDivElement | null) => {
+        if (node) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    setVisibleMovieCount((prev) => prev + 20);
+                }
+            }, {
+                threshold: 1.0,
+            });
+            observer.observe(node);
+        }
+    }, []);
+    
+
+    const genreObserver = useCallback((node: HTMLDivElement | null) => {
+        if (node) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    setVisibleGenreCount((prev) => prev + 2);
+                }
+            }, {
+                threshold: 1.0,
+            });
+            observer.observe(node);
+        }
+    }, []);
+
+
+    // Lazy load movies (genre page)
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setVisibleMovieCount((prev) => prev + 20);
+                }
+            },
+            { threshold: 1.0 }
+        );
+
+        const currentRef = movieObserverRef.current;
+        if (currentRef) observer.observe(currentRef);
+
+        return () => {
+            if (currentRef) observer.unobserve(currentRef);
+        };
+    }, []);
+
+
+
     return (
         <PageBackground>
             {selectedGenre === "all" && (
-                <MovieScrollRow
-                    title="Recommended For You"
-                    movies={recommendedMovies}
-                    getPosterPath={getPosterPath}
-                />
+                <>
+                    <MovieScrollRow
+                        title="Recommended For You"
+                        movies={recommendedMovies}
+                        getPosterPath={getPosterPath}
+                    />
+                    {Object.entries(moviesByGenre)
+                        .slice(0, visibleGenreCount)
+                        .map(([genre, genreMovies]) => (
+                            <MovieScrollRow
+                                key={genre}
+                                title={formatGenreName(genre)}
+                                movies={genreMovies}
+                                getPosterPath={getPosterPath}
+                            />
+                        ))}
+                    <div ref={genreObserver} style={{ height: "1px" }} />
+                </>
             )}
 
-            {selectedGenre === "all" ? (
-                Object.entries(moviesByGenre)
-                    .slice(0, visibleGenres)
-                    .map(([genre, genreMovies]) => (
-                        <MovieScrollRow
-                            key={genre}
-                            title={formatGenreName(genre)}
-                            movies={genreMovies}
-                            getPosterPath={getPosterPath}
-                        />
-                    ))
-            ) : (
+            {selectedGenre !== "all" && (
                 <>
                     {["action", "comedies", "dramas"].includes(selectedGenre) && (
                         <MovieScrollRow
@@ -65,25 +122,38 @@ const GenreRows = ({
                     )}
                     <GenreRow>
                         <GenreTitle>{`All ${formatGenreName(selectedGenre)}`}</GenreTitle>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem" }}>
-                            {filteredMovies.map((movie) => (
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                                gap: "1rem",
+                            }}
+                        >
+                            {filteredMovies.slice(0, visibleMovieCount).map((movie) => (
                                 <MovieCard key={movie.docId}>
                                     <MoviePoster
                                         src={getPosterPath(movie.title)}
                                         alt={movie.title}
+                                        loading="lazy"
                                         onError={(e) => {
-                                            (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                                            (e.currentTarget as HTMLImageElement).src =
+                                                "/Movie Posters/fallback.jpg";
                                         }}
                                     />
                                     <MovieOverlay className="overlay">
                                         <h4>{movie.title}</h4>
-                                        <button onClick={() => window.location.href = `/movie/${movie.slug}`}>
-                                            Go to Movie
+                                        <button
+                                            onClick={() =>
+                                                (window.location.href = `/movie/${movie.slug}`)
+                                            }
+                                        >
+                                            See More
                                         </button>
                                     </MovieOverlay>
                                 </MovieCard>
                             ))}
                         </div>
+                        <div ref={movieObserver} style={{ height: "1px" }} />
                     </GenreRow>
                 </>
             )}

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MovieType } from "../../types/MovieType";
+import { Helmet } from "react-helmet";
 
 export interface FeaturedCarouselProps {
   featuredMovies: MovieType[];
@@ -11,6 +12,8 @@ export interface FeaturedCarouselProps {
   selectedGenre: string;
 }
 
+
+
 const FeaturedCarousel = ({
   featuredMovies,
   currentSlide,
@@ -18,25 +21,65 @@ const FeaturedCarousel = ({
   getPosterPath,
 }: FeaturedCarouselProps) => {
   const navigate = useNavigate();
+    const currentMovie = featuredMovies[currentSlide];
 
   return (
+      <>
+      <Helmet>
+          {currentMovie && (
+              <link
+                  rel="preload"
+                  as="video"
+                  href={
+                      currentMovie.docId === "s341"
+                          ? "/Movie Trailers/Inception.mp4"
+                          : `/Movie Trailers/${currentMovie.title.replace(/[^\w\s]/g, "").trim()}.mp4`
+                  }
+                  type="video/mp4"
+              />
+          )}
+      </Helmet>
     <CarouselWrapper>
       <Carousel style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {featuredMovies.map((movie, index) => (
           <CarouselItem key={index}>
-            <Backdrop
-              src={getPosterPath(movie.title)}
-              alt={movie.title}
+              {movie.docId === "s341" ? (
+                  <VideoBackdrop
+                      src="/Movie Trailers/Inception.mp4"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                  />
+              ) : (
+                  <VideoBackdrop
+                  src={`/Movie Trailers/${movie.title.replace(/[^\w\s]/g, "").trim()}.mp4`}
+              autoPlay
+              muted
+              loop
+              playsInline
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src =
-                  "/Movie Posters/fallback.jpg";
+                  // fallback to image if video fails to load
+                  const fallbackImg = document.createElement("img");
+                  fallbackImg.src = getPosterPath(movie.title);
+                  fallbackImg.style.width = "100%";
+                  fallbackImg.style.height = "100%";
+                  fallbackImg.style.objectFit = "cover";
+                  const parent = (e.target as HTMLVideoElement).parentElement;
+                  if (parent) {
+                      parent.replaceChild(fallbackImg, e.target as Node);
+                  }
               }}
-            />
-            <Overlay>
+          />
+        
+              )}
+
+
+              <Overlay>
               <h2>{movie.title}</h2>
               <p>{movie.description}</p>
               <button onClick={() => navigate(`/movie/${movie.slug}`)}>
-                Go to Movie
+                Watch Now
               </button>
             </Overlay>
           </CarouselItem>
@@ -53,6 +96,7 @@ const FeaturedCarousel = ({
         ))}
       </Dots>
     </CarouselWrapper>
+      </>
   );
 };
 
@@ -63,7 +107,7 @@ const CarouselWrapper = styled.div`
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: 80vh;
+  height: 90vh;
 `;
 
 const Carousel = styled.div`
@@ -155,4 +199,11 @@ const Dot = styled.div<{ $active: boolean }>`
     background 0.3s,
     border 0.3s;
   cursor: pointer;
+`;
+
+
+const VideoBackdrop = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
