@@ -19,7 +19,9 @@ const BrowsePage = () => {
   const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
     "all"
   );
+  // ===================================
   const [userRole, setUserRole] = useState<string | null>(null);
+  // ==================================
   const navigate = useNavigate();
   const location = useLocation();
   const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
