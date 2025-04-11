@@ -11,29 +11,42 @@ import { useMemo } from "react";
 import AuthorizeView from "../components/AuthorizeView";
 
 const BrowsePage = () => {
-    const [movies, setMovies] = useState<MovieType[]>([]);
-    const [genres, setGenres] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedGenre, setSelectedGenre] = useState("all");
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
-    const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
-    const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
-    const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
+  const [movies, setMovies] = useState<MovieType[]>([]);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedGenre, setSelectedGenre] = useState("all");
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
+    "all"
+  );
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
+  const [actionRecommendations, setActionRecommendations] = useState<
+    MovieType[]
+  >([]);
+  const [comedyRecommendations, setComedyRecommendations] = useState<
+    MovieType[]
+  >([]);
+  const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>(
+    []
+  );
 
-    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
-
-    
+  const posterBase = import.meta.env.VITE_POSTER_BASE; // ①
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         const userId = 11;
         const response = await fetch(
-          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`
+          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`,
+          {
+            method: "GET",
+            credentials: "include", // Sends cookies with the request
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
         const titles: string[] = await response.json();
 
@@ -57,7 +70,14 @@ const BrowsePage = () => {
       try {
         const userId = 11;
         const res = await fetch(
-          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`
+          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`,
+          {
+            method: "GET",
+            credentials: "include", // Sends cookies with the request
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
         const titles: string[] = await res.json();
 
@@ -125,7 +145,14 @@ const BrowsePage = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/movietitles"
+          "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/movietitles",
+          {
+            method: "GET",
+            credentials: "include", // Sends cookies with the request
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
         const rawData = await response.json();
 
@@ -176,7 +203,6 @@ const BrowsePage = () => {
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "");
-
 
         const transformed = rawData.map((item: any) => {
           const genre = extractFirstGenre(item);
@@ -254,21 +280,21 @@ const BrowsePage = () => {
     moviesByGenre[movie.genre].push(movie);
   });
 
-    const formatGenreName = (key: string): string =>
-        key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
+  const formatGenreName = (key: string): string =>
+    key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\bTv\b/i, "TV");
 
+  const getPosterPath = (title: string): string => {
+    if (!title) return `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
 
+    const fileName = title
+      .replace(/[^\w\s]/g, "") // remove special characters
+      .trim();
 
-    const getPosterPath = (title: string): string => {
-        if (!title) return `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
-      
-        const fileName = title
-          .replace(/[^\w\s]/g, "")   // remove special characters
-          .trim();
-      
-        return `${posterBase}/${fileName}.jpg`;
-      };
-
+    return `${posterBase}/${fileName}.jpg`;
+  };
 
   return (
     <>

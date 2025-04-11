@@ -6,7 +6,7 @@ namespace INTEX_II.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class DetailsRecommendationController : ControllerBase
     {
         private readonly IConfiguration _config;
