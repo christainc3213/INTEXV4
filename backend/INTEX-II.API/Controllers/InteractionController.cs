@@ -5,7 +5,7 @@ namespace INTEX_II.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
 
     public class InteractionController : ControllerBase
     {

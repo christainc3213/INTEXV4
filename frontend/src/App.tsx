@@ -12,6 +12,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import FooterComponent from "./components/FooterComponent";
 import ScrollToTop from "./components/ScrollToTop";
 import MoviePageWrapper from "./components/MoviePageWrapper";
+import CookieBanner from "./components/CookieBanner";
 
 if ("scrollRestoration" in window.history) {
   window.history.scrollRestoration = "manual";
@@ -21,6 +22,7 @@ if ("scrollRestoration" in window.history) {
 const App: React.FC = () => {
   return (
     <>
+      <CookieBanner />
       <Router>
         <ScrollToTop />
         <Routes>
