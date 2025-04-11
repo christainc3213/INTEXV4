@@ -79,7 +79,7 @@ const AdminPage = () => {
   };
 
   const getPosterPath = (title: string): string => {
-    if (!title) return `${posterBase}/fallback.jpg`;
+    if (!title) return `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
   
     const fileName = title
       .replace(/[^\w\s]/g, "")   // remove special characters
@@ -173,7 +173,7 @@ const AdminPage = () => {
                       alt={movie.title}
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src =
-                          "/Movie Posters/fallback.jpg";
+                          `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
                       }}
                     />
                     <MovieOverlay className="overlay">

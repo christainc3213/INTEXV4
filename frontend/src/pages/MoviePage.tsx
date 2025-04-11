@@ -127,7 +127,7 @@ const MoviePage = () => {
     str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const getPosterPath = (title: string): string => {
-    if (!title) return `${posterBase}/fallback.jpg`;
+    if (!title) return `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
   
     const fileName = title
       .replace(/[^\w\s]/g, "")   // remove special characters
@@ -256,7 +256,7 @@ const MoviePage = () => {
                 src={getPosterPath(title)}
                 alt={title}
                 onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                  (e.currentTarget as HTMLImageElement).src = `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
                 }}
               />
               <MovieOverlay className="overlay">
@@ -293,7 +293,7 @@ const MoviePage = () => {
             zIndex: 2,
           }}
           onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+            (e.currentTarget as HTMLImageElement).src = `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
           }}
         />
 

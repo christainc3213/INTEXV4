@@ -80,7 +80,7 @@ const PosterCard: React.FC<Props> = ({ movie, posterSrc }) => {
                 src={posterSrc}
                 alt={movie.title}
                 onError={(e) =>
-                    ((e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg")
+                    ((e.currentTarget as HTMLImageElement).src = `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`)
                 }
             />
             <Overlay className="overlay">
