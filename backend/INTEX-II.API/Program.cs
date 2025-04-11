@@ -70,6 +70,13 @@ builder.Services.AddSingleton<IEmailSender<IdentityUser>, NoOpEmailSender<Identi
 
 var app = builder.Build();
 
+//HSTS
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();         // Automatically sets HSTS header with safe defaults
+    app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -78,7 +85,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
