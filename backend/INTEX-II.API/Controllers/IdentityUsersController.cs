@@ -9,7 +9,7 @@ namespace INTEX_II.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Administrator")]
+    // [Authorize(Roles = "Administrator")]
     public class UserController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;

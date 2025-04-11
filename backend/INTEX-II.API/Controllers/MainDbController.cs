@@ -8,7 +8,7 @@ namespace INTEX_II.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class MainDbController : ControllerBase
     {
         private readonly MainDbContext _mainDbContext;
