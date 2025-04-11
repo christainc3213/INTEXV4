@@ -16,7 +16,7 @@ const SearchResults = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch("https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles");
+                const res = await fetch("https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/MovieTitles");
                 const rawData = await res.json();
 
                 const genreKeys = [

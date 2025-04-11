@@ -79,7 +79,7 @@ const MoviePage = () => {
     setUserRating(rating);
   
     try {
-      const res = await fetch("https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings", {
+      const res = await fetch("https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/ratings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ const MoviePage = () => {
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const res = await fetch("https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/MovieTitles");
+        const res = await fetch("https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/MovieTitles");
         const data = await res.json();
 
         const genreKeys = [
@@ -180,7 +180,7 @@ const MoviePage = () => {
 
         const userId = 11;
         if (userId) {
-          fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/ratings/${userId}/${id}`)
+          fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/ratings/${userId}/${id}`)
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {
               if (data?.rating) {
@@ -190,12 +190,12 @@ const MoviePage = () => {
             .catch((err) => console.warn("Failed to fetch existing rating:", err));
         }
         // Fetch each rec source independently
-        fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/DetailsRecommendation/content/${id}`)
+        fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/DetailsRecommendation/content/${id}`)
             .then(res => res.ok ? res.json() : [])
           .then(setContentRecs)
           .catch(e => console.warn("Content recs failed", e));
 
-        fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/DetailsRecommendation/collab/${id}`)
+        fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/DetailsRecommendation/collab/${id}`)
           .then(res => res.ok ? res.json() : [])
           .then(setCollabRecs)
           .catch(e => console.warn("Collab recs failed", e));                           
@@ -206,21 +206,21 @@ const MoviePage = () => {
         console.log("📦 Detected genre:", matched.genre);
 
         if (genre.includes("action")) {
-        fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/DetailsRecommendation/action/${id}`)
+        fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/DetailsRecommendation/action/${id}`)
             .then(res => res.ok ? res.json() : [])
             .then(setActionRecs)
             .catch(e => console.warn("Action recs failed", e));
         }
         
         if (genre.includes("comedies")) {
-        fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/DetailsRecommendation/comedy/${id}`)
+        fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/DetailsRecommendation/comedy/${id}`)
             .then(res => res.ok ? res.json() : [])
             .then(setComedyRecs)
             .catch(e => console.warn("Comedy recs failed", e));
         }
         
         if (genre.includes("drama")) {
-        fetch(`https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/api/DetailsRecommendation/drama/${id}`)
+        fetch(`https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/DetailsRecommendation/drama/${id}`)
             .then(res => res.ok ? res.json() : [])
             .then(setDramaRecs)
             .catch(e => console.warn("Drama recs failed", e));

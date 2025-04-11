@@ -65,7 +65,7 @@ function Register() {
     }
 
     try {
-      const registerResponse = await fetch("https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/register", {
+      const registerResponse = await fetch("https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ function Register() {
         throw new Error(registerResult?.message || "Error registering.");
       }
 
-      const loginUrl = "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useCookies=true";
+      const loginUrl = "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/login?useCookies=true";
       const loginResponse = await fetch(loginUrl, {
         method: "POST",
         headers: {

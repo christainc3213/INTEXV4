@@ -39,8 +39,8 @@ function LoginPage() {
     }
 
     const loginUrl = rememberme
-      ? "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useCookies=true"
-      : "https://cineniche-3-9-f4dje0g7fgfhdafk.eastus-01.azurewebsites.net/login?useSessionCookies=true";
+      ? "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/login?useCookies=true"
+      : "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/login?useSessionCookies=true";
 
     try {
       const response = await fetch(loginUrl, {
