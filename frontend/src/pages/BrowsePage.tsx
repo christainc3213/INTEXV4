@@ -173,7 +173,7 @@ const BrowsePage = () => {
                         genre,
                         slug: slugify(item.title),
                         docId: item.show_id,
-                        posterFile: `/Movie Posters/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`
+                        posterFile: `${posterBase}/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`
                     };
                 });
 
@@ -238,9 +238,17 @@ const BrowsePage = () => {
     const formatGenreName = (key: string): string =>
         key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
+    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+
     const getPosterPath = (title: string): string => {
-        return `/Movie Posters/${title.replace(/[^\w\s]/g, "").trim()}.jpg`;
+    if (!title) return `${posterBase}/fallback.jpg`;            // keep your fallback in the blob too
+    const fileName = title
+        .replace(/[^\w\s]/g, "")        // strip punctuation
+        .replace(/\s+/g, " ")           // collapse spaces
+        .trim();
+    return `${posterBase}/${encodeURIComponent(fileName)}.jpg`; // ② encode spaces → %20
     };
+
 
     return (
         <>
