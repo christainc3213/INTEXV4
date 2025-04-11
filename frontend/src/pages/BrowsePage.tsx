@@ -186,7 +186,7 @@ const BrowsePage = () => {
             genre,
             slug: slugify(item.title),
             docId: item.show_id,
-            posterFile: `/Movie Posters/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`,
+            posterFile: `${posterBase}/${item.title}`,
           };
         });
 
