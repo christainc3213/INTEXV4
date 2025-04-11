@@ -58,14 +58,13 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
     });
 
     const handleChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, type, value } = event.target as HTMLInputElement;
-        const checked = (event.target as HTMLInputElement).checked;
-
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      ) => {
+        const { name, value, type } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        const checked = type === "checkbox" && (e.target as HTMLInputElement).checked;
         setFormData({
-            ...formData,
-            [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
+          ...formData,
+          [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
         });
     };
       
@@ -151,15 +150,28 @@ const EditMovieForm = ({ movie, onSuccess, onCancel }: EditMovieFormProps) => {
             </InputGroup>
 
             <InputGroup>
-                <Label>Rating</Label>
-                <Input
-                    type="number"
-                    step="0.1"
-                    name="rating"
-                    value={formData.rating}
-                    onChange={handleChange}
-                    placeholder="Enter movie rating"
-                />
+              <label>Rating</label>
+              <select
+                name="rating"
+                value={formData.rating}
+                onChange={handleChange}
+              >
+                <option value="">Select a rating</option>
+                {/* Movie ratings (MPAA) */}
+                <option value="G">G – General Audiences</option>
+                <option value="PG">PG – Parental Guidance Suggested</option>
+                <option value="PG-13">PG-13 – Parents Strongly Cautioned</option>
+                <option value="R">R – Restricted</option>
+                <option value="NC-17">NC-17 – Adults Only</option>
+
+                {/* TV Ratings */}
+                <option value="TV-Y">TV-Y – All Children</option>
+                <option value="TV-Y7">TV-Y7 – Older Children</option>
+                <option value="TV-G">TV-G – General Audience</option>
+                <option value="TV-PG">TV-PG – Parental Guidance Suggested</option>
+                <option value="TV-14">TV-14 – Parents Strongly Cautioned</option>
+                <option value="TV-MA">TV-MA – Mature Audience Only</option>
+              </select>
             </InputGroup>
 
             <InputGroup>
