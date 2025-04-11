@@ -24,6 +24,8 @@ const MoviePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
+  const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+
   useLayoutEffect(() => {
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
@@ -125,12 +127,14 @@ const MoviePage = () => {
     str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const getPosterPath = (title: string): string => {
-    if (!title) return "/Movie Posters/fallback.jpg";
-    return `/Movie Posters/${title
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, " ")
-      .trim()}.jpg`;
-  }; 
+    if (!title) return `${posterBase}/fallback.jpg`;
+  
+    const fileName = title
+      .replace(/[^\w\s]/g, "")   // remove special characters
+      .trim();
+  
+    return `${posterBase}/${fileName}.jpg`;
+  };
 
   useEffect(() => {
     const fetchMovie = async () => {

@@ -11,26 +11,22 @@ import { useMemo } from "react";
 import AuthorizeView from "../components/AuthorizeView";
 
 const BrowsePage = () => {
-  const [movies, setMovies] = useState<MovieType[]>([]);
-  const [genres, setGenres] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedGenre, setSelectedGenre] = useState("all");
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
-    "all"
-  );
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
-  const [actionRecommendations, setActionRecommendations] = useState<
-    MovieType[]
-  >([]);
-  const [comedyRecommendations, setComedyRecommendations] = useState<
-    MovieType[]
-  >([]);
-  const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>(
-    []
-  );
+    const [movies, setMovies] = useState<MovieType[]>([]);
+    const [genres, setGenres] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedGenre, setSelectedGenre] = useState("all");
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
+    const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
+    const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
+    const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
+
+    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+
+    
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -181,6 +177,7 @@ const BrowsePage = () => {
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "");
 
+
         const transformed = rawData.map((item: any) => {
           const genre = extractFirstGenre(item);
           return {
@@ -191,7 +188,7 @@ const BrowsePage = () => {
             genre,
             slug: slugify(item.title),
             docId: item.show_id,
-            posterFile: `/Movie Posters/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`,
+            posterFile: `${posterBase}/${item.title}`,
           };
         });
 
@@ -257,15 +254,21 @@ const BrowsePage = () => {
     moviesByGenre[movie.genre].push(movie);
   });
 
-  const formatGenreName = (key: string): string =>
-    key
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase())
-      .replace(/\bTv\b/i, "TV");
+    const formatGenreName = (key: string): string =>
+        key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
-  const getPosterPath = (title: string): string => {
-    return `/Movie Posters/${title.replace(/[^\w\s]/g, "").trim()}.jpg`;
-  };
+
+
+    const getPosterPath = (title: string): string => {
+        if (!title) return `${posterBase}/fallback.jpg`;
+      
+        const fileName = title
+          .replace(/[^\w\s]/g, "")   // remove special characters
+          .trim();
+      
+        return `${posterBase}/${fileName}.jpg`;
+      };
+
 
   return (
     <>
