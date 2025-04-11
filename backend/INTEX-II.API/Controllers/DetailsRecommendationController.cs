@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace INTEX_II.API.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
