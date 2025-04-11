@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MovieType } from "../types/MovieType";
 import Header from "./BrowseParts/Header";
 import FeaturedCarousel from "./BrowseParts/FeaturedCarousel";
 import GenreRows from "./BrowseParts/GenreRows";
-import Spinner from "../components/Spinner"; // adjust if path is different
-import { useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import Spinner from "../components/Spinner";
 import AuthorizeView from "../components/AuthorizeView";
 
 const BrowsePage = () => {
@@ -19,11 +17,12 @@ const BrowsePage = () => {
   const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
     "all"
   );
-  // ===================================
+
   const [userRole, setUserRole] = useState<string | null>(null);
-  // ==================================
+
   const navigate = useNavigate();
   const location = useLocation();
+
   const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
   const [actionRecommendations, setActionRecommendations] = useState<
     MovieType[]
@@ -35,37 +34,10 @@ const BrowsePage = () => {
     []
   );
 
-  const posterBase = import.meta.env.VITE_POSTER_BASE; // ①
+  const posterBase = import.meta.env.VITE_POSTER_BASE;
 
+  // 1. Fetch user info on load
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const userId = 11;
-        const response = await fetch(
-          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`,
-          {
-            method: "GET",
-            credentials: "include", // Sends cookies with the request
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const titles: string[] = await response.json();
-
-        const matches = movies.filter((movie) =>
-          titles.some(
-            (title) =>
-              title.trim().toLowerCase() === movie.title.trim().toLowerCase()
-          )
-        );
-
-        setRecommendedMovies(matches);
-      } catch (error) {
-        console.error("❌ Failed to fetch recommended titles", error);
-      }
-    };
-    // ===========================================================
     const fetchUserInfo = async () => {
       try {
         const response = await fetch(
@@ -81,12 +53,9 @@ const BrowsePage = () => {
 
         if (response.ok) {
           const data = await response.json();
-
-          if (data.roles?.includes("Administrator")) {
-            setUserRole("Administrator");
-          } else {
-            setUserRole("User"); // Optional fallback
-          }
+          setUserRole(
+            data.roles?.includes("Administrator") ? "Administrator" : "User"
+          );
         } else {
           console.error("Failed to fetch user info");
         }
@@ -96,88 +65,9 @@ const BrowsePage = () => {
     };
 
     fetchUserInfo();
+  }, []);
 
-    // ===========================================================
-
-    const fetchGenreRecs = async (
-      genre: string,
-      setter: (movies: MovieType[]) => void
-    ) => {
-      try {
-        const userId = userRole !== "Administrator" ? 11 : 8;
-        // const userId = 11;
-        const res = await fetch(
-          `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`,
-          {
-            method: "GET",
-            credentials: "include", // Sends cookies with the request
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const titles: string[] = await res.json();
-
-        const matches = movies.filter((movie) =>
-          titles.some(
-            (title) =>
-              title.trim().toLowerCase() === movie.title.trim().toLowerCase()
-          )
-        );
-        setter(matches);
-      } catch (err) {
-        console.error(`❌ Failed to fetch ${genre} recommendations`, err);
-      }
-    };
-
-    if (!loading) {
-      fetchRecommendations();
-      fetchGenreRecs("action", setActionRecommendations);
-      fetchGenreRecs("comedies", setComedyRecommendations);
-      fetchGenreRecs("dramas", setDramaRecommendations);
-    }
-  }, [movies, loading]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const genreFromUrl = params.get("genre");
-    const typeFromUrl = params.get("type");
-
-    if (genreFromUrl) {
-      setSelectedGenre(genreFromUrl);
-    } else {
-      setSelectedGenre("all");
-    }
-
-    if (typeFromUrl === "Movies") {
-      setContentType("Movie");
-    } else if (typeFromUrl === "TV-Shows") {
-      setContentType("TV Show");
-    } else {
-      setContentType("all");
-    }
-  }, [location.search]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const fullHeight = document.documentElement.scrollHeight;
-
-      const nearBottom = scrollTop + viewportHeight >= fullHeight - 300;
-
-      console.log("🧮 scrollY:", window.scrollY);
-      console.log("📏 viewport height:", window.innerHeight);
-      console.log(
-        "📐 full page height:",
-        document.documentElement.scrollHeight
-      );
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [selectedGenre]);
-
+  // 2. Fetch movies
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -185,7 +75,7 @@ const BrowsePage = () => {
           "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/movietitles",
           {
             method: "GET",
-            credentials: "include", // Sends cookies with the request
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -241,19 +131,16 @@ const BrowsePage = () => {
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "");
 
-        const transformed = rawData.map((item: any) => {
-          const genre = extractFirstGenre(item);
-          return {
-            show_id: item.show_id,
-            type: item.type,
-            title: item.title,
-            description: item.description || "No description available",
-            genre,
-            slug: slugify(item.title),
-            docId: item.show_id,
-            posterFile: `${posterBase}/${item.title}`,
-          };
-        });
+        const transformed = rawData.map((item: any) => ({
+          show_id: item.show_id,
+          type: item.type,
+          title: item.title,
+          description: item.description || "No description available",
+          genre: extractFirstGenre(item),
+          slug: slugify(item.title),
+          docId: item.show_id,
+          posterFile: `${posterBase}/${item.title}`,
+        }));
 
         const uniqueGenres: string[] = Array.from(
           new Set((transformed as MovieType[]).map((m: MovieType) => m.genre))
@@ -269,6 +156,84 @@ const BrowsePage = () => {
 
     fetchData();
   }, []);
+
+  // 3. Fetch recommendations based on user role
+  useEffect(() => {
+    if (!loading && userRole) {
+      const userId = userRole !== "Administrator" ? 11 : 8;
+
+      const fetchRecommendations = async () => {
+        try {
+          const response = await fetch(
+            `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/${userId}`,
+            {
+              method: "GET",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const titles: string[] = await response.json();
+          const matches = movies.filter((movie) =>
+            titles.some(
+              (title) =>
+                title.trim().toLowerCase() === movie.title.trim().toLowerCase()
+            )
+          );
+          setRecommendedMovies(matches);
+        } catch (error) {
+          console.error("❌ Failed to fetch recommended titles", error);
+        }
+      };
+
+      const fetchGenreRecs = async (
+        genre: string,
+        setter: (movies: MovieType[]) => void
+      ) => {
+        try {
+          const res = await fetch(
+            `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`,
+            {
+              method: "GET",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const titles: string[] = await res.json();
+          const matches = movies.filter((movie) =>
+            titles.some(
+              (title) =>
+                title.trim().toLowerCase() === movie.title.trim().toLowerCase()
+            )
+          );
+          setter(matches);
+        } catch (err) {
+          console.error(`❌ Failed to fetch ${genre} recommendations`, err);
+        }
+      };
+
+      fetchRecommendations();
+      fetchGenreRecs("action", setActionRecommendations);
+      fetchGenreRecs("comedies", setComedyRecommendations);
+      fetchGenreRecs("dramas", setDramaRecommendations);
+    }
+  }, [userRole, loading, movies]);
+
+  // 4. URL Params (genre/type)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const genreFromUrl = params.get("genre");
+    const typeFromUrl = params.get("type");
+
+    setSelectedGenre(genreFromUrl || "all");
+
+    if (typeFromUrl === "Movies") setContentType("Movie");
+    else if (typeFromUrl === "TV-Shows") setContentType("TV Show");
+    else setContentType("all");
+  }, [location.search]);
 
   const filteredByType = useMemo(() => {
     return contentType === "all"
@@ -287,20 +252,13 @@ const BrowsePage = () => {
   if (loading) return <Spinner size={60} color="#ffffff" centered />;
 
   let firstFeaturedId: string | null = null;
-
-  if (selectedGenre === "all" && contentType === "all") {
-    firstFeaturedId = "s341"; // Home page
-  } else if (contentType === "Movie") {
-    firstFeaturedId = "s330"; // Example for Movies page
-  } else if (contentType === "TV Show") {
-    firstFeaturedId = "s6"; // Example for TV Shows page
-  } else if (selectedGenre === "action") {
-    firstFeaturedId = "s609"; // Example for Action genre
-  } else if (selectedGenre === "comedies") {
-    firstFeaturedId = "s28"; // Example for Comedies
-  } else if (selectedGenre === "dramas") {
-    firstFeaturedId = "s829"; // Example for Dramas
-  }
+  if (selectedGenre === "all" && contentType === "all")
+    firstFeaturedId = "s341";
+  else if (contentType === "Movie") firstFeaturedId = "s330";
+  else if (contentType === "TV Show") firstFeaturedId = "s6";
+  else if (selectedGenre === "action") firstFeaturedId = "s609";
+  else if (selectedGenre === "comedies") firstFeaturedId = "s28";
+  else if (selectedGenre === "dramas") firstFeaturedId = "s829";
 
   const featuredMovies = firstFeaturedId
     ? [
@@ -309,7 +267,7 @@ const BrowsePage = () => {
           .filter((m) => m.docId !== firstFeaturedId)
           .slice(0, 4),
       ]
-    : filteredMovies.slice(4, 9);
+    : filteredMovies.slice(0, 5);
 
   const moviesByGenre: Record<string, MovieType[]> = {};
   filteredMovies.forEach((movie) => {
@@ -324,48 +282,42 @@ const BrowsePage = () => {
       .replace(/\bTv\b/i, "TV");
 
   const getPosterPath = (title: string): string => {
-    if (!title) return `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
-
-    const fileName = title
-      .replace(/[^\w\s]/g, "") // remove special characters
-      .trim();
-
+    if (!title) return `${posterBase}/fallback.jpg`;
+    const fileName = title.replace(/[^\w\s]/g, "").trim();
     return `${posterBase}/${fileName}.jpg`;
   };
 
   return (
-    <>
-      <AuthorizeView>
-        <Header
-          selectedGenre={selectedGenre}
-          setSelectedGenre={setSelectedGenre}
-          allMovies={movies}
-          genres={genres}
-          formatGenreName={formatGenreName}
-        />
+    <AuthorizeView>
+      <Header
+        selectedGenre={selectedGenre}
+        setSelectedGenre={setSelectedGenre}
+        allMovies={movies}
+        genres={genres}
+        formatGenreName={formatGenreName}
+      />
 
-        <FeaturedCarousel
-          movies={filteredMovies}
-          selectedGenre={selectedGenre}
-          featuredMovies={featuredMovies}
-          currentSlide={currentSlide}
-          setCurrentSlide={setCurrentSlide}
-          getPosterPath={getPosterPath}
-        />
+      <FeaturedCarousel
+        movies={filteredMovies}
+        selectedGenre={selectedGenre}
+        featuredMovies={featuredMovies}
+        currentSlide={currentSlide}
+        setCurrentSlide={setCurrentSlide}
+        getPosterPath={getPosterPath}
+      />
 
-        <GenreRows
-          moviesByGenre={moviesByGenre}
-          selectedGenre={selectedGenre}
-          recommendedMovies={recommendedMovies}
-          formatGenreName={formatGenreName}
-          getPosterPath={getPosterPath}
-          filteredMovies={filteredMovies}
-          actionRecs={actionRecommendations}
-          comedyRecs={comedyRecommendations}
-          dramaRecs={dramaRecommendations}
-        />
-      </AuthorizeView>
-    </>
+      <GenreRows
+        moviesByGenre={moviesByGenre}
+        selectedGenre={selectedGenre}
+        recommendedMovies={recommendedMovies}
+        formatGenreName={formatGenreName}
+        getPosterPath={getPosterPath}
+        filteredMovies={filteredMovies}
+        actionRecs={actionRecommendations}
+        comedyRecs={comedyRecommendations}
+        dramaRecs={dramaRecommendations}
+      />
+    </AuthorizeView>
   );
 };
 
