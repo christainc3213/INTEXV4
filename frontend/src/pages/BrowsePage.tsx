@@ -27,6 +27,9 @@ const BrowsePage = () => {
     const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
     
 
+    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+    
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
@@ -176,6 +179,19 @@ const BrowsePage = () => {
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "");
 
+                const transformed = rawData.map((item: any) => {
+                    const genre = extractFirstGenre(item);
+                    return {
+                        show_id: item.show_id,
+                        type: item.type,
+                        title: item.title,
+                        description: item.description || "No description available",
+                        genre,
+                        slug: slugify(item.title),
+                        docId: item.show_id,
+                        posterFile: `${posterBase}/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`
+                    };
+                });
         const transformed = rawData.map((item: any) => {
           const genre = extractFirstGenre(item);
           return {
@@ -256,7 +272,17 @@ const BrowsePage = () => {
         key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
 
+
     const getPosterPath = (title: string): string => {
+        if (!title) return `${posterBase}/fallback.jpg`;
+      
+        const fileName = title
+          .replace(/[^\w\s]/g, "")   // remove special characters
+          .trim();
+      
+        return `${posterBase}/${fileName}.jpg`;
+      };
+
         if (!title) return `${posterBase}/fallback.jpg`;
       
         const fileName = title
