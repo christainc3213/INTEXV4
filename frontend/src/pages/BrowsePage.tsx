@@ -25,8 +25,9 @@ const BrowsePage = () => {
     const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
     const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
     const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
-    
 
+    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+    
 
     useEffect(() => {
         const fetchRecommendations = async () => {
@@ -238,7 +239,6 @@ const BrowsePage = () => {
     const formatGenreName = (key: string): string =>
         key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
-    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
 
     const getPosterPath = (title: string): string => {
     if (!title) return `${posterBase}/fallback.jpg`;            // keep your fallback in the blob too
