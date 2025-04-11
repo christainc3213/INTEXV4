@@ -10,10 +10,10 @@ export default defineConfig({
       "Content-Security-Policy":
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-        "font-src 'self' https://fonts.gstatic.com data:; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "font-src 'self' data:; " +
         "img-src 'self' data:; " +
-        "connect-src 'self' https://localhost:5001; " +
+        "connect-src 'self' https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net; " +
         "frame-src 'self'; " +
         "object-src 'none'; " +
         "base-uri 'self'; " +
@@ -21,7 +21,8 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://localhost:5001",
+        target:
+          "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net",
         changeOrigin: true,
         secure: false, // allows self-signed certificates
       },
