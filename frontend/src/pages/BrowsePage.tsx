@@ -241,13 +241,14 @@ const BrowsePage = () => {
 
 
     const getPosterPath = (title: string): string => {
-    if (!title) return `${posterBase}/fallback.jpg`;            // keep your fallback in the blob too
-    const fileName = title
-        .replace(/[^\w\s]/g, "")        // strip punctuation
-        .replace(/\s+/g, " ")           // collapse spaces
-        .trim();
-    return `${posterBase}/${encodeURIComponent(fileName)}.jpg`; // ② encode spaces → %20
-    };
+        if (!title) return `${posterBase}/fallback.jpg`;
+      
+        const fileName = title
+          .replace(/[^\w\s]/g, "")   // remove special characters
+          .trim();
+      
+        return `${posterBase}/${fileName}.jpg`;
+      };
 
 
     return (
