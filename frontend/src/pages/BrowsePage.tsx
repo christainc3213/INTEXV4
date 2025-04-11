@@ -11,26 +11,21 @@ import { useMemo } from "react";
 import AuthorizeView from "../components/AuthorizeView";
 
 const BrowsePage = () => {
-  const [movies, setMovies] = useState<MovieType[]>([]);
-  const [genres, setGenres] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedGenre, setSelectedGenre] = useState("all");
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
-    "all"
-  );
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
-  const [actionRecommendations, setActionRecommendations] = useState<
-    MovieType[]
-  >([]);
-  const [comedyRecommendations, setComedyRecommendations] = useState<
-    MovieType[]
-  >([]);
-  const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>(
-    []
-  );
+    const [movies, setMovies] = useState<MovieType[]>([]);
+    const [genres, setGenres] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedGenre, setSelectedGenre] = useState("all");
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">("all");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
+    const [actionRecommendations, setActionRecommendations] = useState<MovieType[]>([]);
+    const [comedyRecommendations, setComedyRecommendations] = useState<MovieType[]>([]);
+    const [dramaRecommendations, setDramaRecommendations] = useState<MovieType[]>([]);
+
+    const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+    
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -257,11 +252,9 @@ const BrowsePage = () => {
     moviesByGenre[movie.genre].push(movie);
   });
 
-  const formatGenreName = (key: string): string =>
-    key
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase())
-      .replace(/\bTv\b/i, "TV");
+    const formatGenreName = (key: string): string =>
+        key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
+
 
   const getPosterPath = (title: string): string => {
     return `/Movie Posters/${title.replace(/[^\w\s]/g, "").trim()}.jpg`;
