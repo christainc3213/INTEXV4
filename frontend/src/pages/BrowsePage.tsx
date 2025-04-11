@@ -256,9 +256,16 @@ const BrowsePage = () => {
         key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\bTv\b/i, "TV");
 
 
-  const getPosterPath = (title: string): string => {
-    return `/Movie Posters/${title.replace(/[^\w\s]/g, "").trim()}.jpg`;
-  };
+    const getPosterPath = (title: string): string => {
+        if (!title) return `${posterBase}/fallback.jpg`;
+      
+        const fileName = title
+          .replace(/[^\w\s]/g, "")   // remove special characters
+          .trim();
+      
+        return `${posterBase}/${fileName}.jpg`;
+      };
+
 
   return (
     <>
