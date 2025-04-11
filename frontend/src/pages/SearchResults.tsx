@@ -45,7 +45,7 @@ const SearchResults = () => {
                         genre,
                         slug: item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
                         docId: item.show_id,
-                        posterFile: `/Movie Posters/${item.title.replace(/[\W_]+/g, " ").trim()}.jpg`,
+                        posterFile: `${import.meta.env.VITE_POSTER_BASE}/${item.title.replace(/[^\w\s]/g, "").trim()}.jpg`,
                     };
                 });
 
@@ -87,7 +87,7 @@ const SearchResults = () => {
                                 alt={movie.title}
                                 loading="lazy" // 👈 this is the key part
                                 onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = "/Movie Posters/fallback.jpg";
+                                    (e.currentTarget as HTMLImageElement).src = `${import.meta.env.VITE_POSTER_BASE}/fallback.jpg`;
                                 }}
                             />
                         </PosterCard>
