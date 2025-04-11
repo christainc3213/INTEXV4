@@ -19,6 +19,7 @@ const BrowsePage = () => {
   const [contentType, setContentType] = useState<"all" | "Movie" | "TV Show">(
     "all"
   );
+  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [recommendedMovies, setRecommendedMovies] = useState<MovieType[]>([]);
@@ -62,13 +63,47 @@ const BrowsePage = () => {
         console.error("❌ Failed to fetch recommended titles", error);
       }
     };
+    // ===========================================================
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(
+          "https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/user/info",
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.roles?.includes("Administrator")) {
+            setUserRole("Administrator");
+          } else {
+            setUserRole("User"); // Optional fallback
+          }
+        } else {
+          console.error("Failed to fetch user info");
+        }
+      } catch (err) {
+        console.error("Error fetching user info", err);
+      }
+    };
+
+    fetchUserInfo();
+
+    // ===========================================================
 
     const fetchGenreRecs = async (
       genre: string,
       setter: (movies: MovieType[]) => void
     ) => {
       try {
-        const userId = 11;
+        const userId = userRole !== "Administrator" ? 11 : 8;
+        // const userId = 11;
         const res = await fetch(
           `https://intexv4-backend-a9gufubwgrdmgtcs.eastus-01.azurewebsites.net/api/BrowseRecommendations/genre/${genre}/${userId}`,
           {
