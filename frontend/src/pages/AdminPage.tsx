@@ -24,6 +24,8 @@ const AdminPage = () => {
   const [editingMovie, setEditingMovie] = useState<MovieType | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const posterBase = import.meta.env.VITE_POSTER_BASE;          // ①
+
   const loadMovies = async (
     size = pageSize,
     page = currentPage,
@@ -77,7 +79,13 @@ const AdminPage = () => {
   };
 
   const getPosterPath = (title: string): string => {
-    return `/Movie Posters/${title.replace(/[^\w\s]/g, "").trim()}.jpg`;
+    if (!title) return `${posterBase}/fallback.jpg`;
+  
+    const fileName = title
+      .replace(/[^\w\s]/g, "")   // remove special characters
+      .trim();
+  
+    return `${posterBase}/${fileName}.jpg`;
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
