@@ -44,7 +44,7 @@ const AdminAuthorizeView: React.FC<AdminAuthorizeProps> = ({ children }) => {
   }
 
   if (!isAdmin) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
 
   return <>{children}</>;
