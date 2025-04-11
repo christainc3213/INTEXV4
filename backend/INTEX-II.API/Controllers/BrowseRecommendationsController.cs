@@ -8,7 +8,7 @@ namespace INTEX_II.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+ //   [Authorize]
     public class BrowseRecommendationsController : ControllerBase
     {
         private readonly string _connectionString;

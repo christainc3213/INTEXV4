@@ -18,7 +18,7 @@ const HomePage = () => {
   return (
       <HeaderComponent showWhiteFilm={true} showSigninButton = {true}>
       <HeroContent>
-        <h1>Indie Films. Cult Classics. All in one place.</h1>
+        <h1>Independent Films. Cult Classics. All in one place.</h1>
         <h2>
           Ready to watch? Enter your email below to start your membership.
         </h2>
