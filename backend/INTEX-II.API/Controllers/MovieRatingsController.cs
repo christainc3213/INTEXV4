@@ -8,7 +8,7 @@ namespace INTEX_II.API.Controllers
 {
     [ApiController]
     [Route("api/ratings")]
-    // [Authorize]
+    [Authorize]
     public class MovieRatingsController : ControllerBase
     {
         private readonly MainDbContext _context;
